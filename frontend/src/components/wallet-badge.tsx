@@ -127,9 +127,13 @@ export function WalletBadge() {
 
   if (!hasWallet) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-500">
+      <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-500">
         <Check size={14} className="text-emerald-600" strokeWidth={2.4} aria-hidden="true" />
-        Studio Dev · no wallet needed
+        Studio Dev
+        {/* The reassurance is the point of this badge, but it does not fit
+            beside a logo at 390px and wrapping it to two lines reads as a
+            layout bug. It appears from `sm` up. */}
+        <span className="hidden sm:inline">· no wallet needed</span>
       </span>
     );
   }
@@ -153,7 +157,7 @@ export function WalletBadge() {
 
   if (address) {
     return (
-      <span className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700">
+      <span className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700">
         <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
           Studio Dev
