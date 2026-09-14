@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-09-14T06:14:24.616Z",
+  "captured_at": "2026-09-14T06:19:56.538Z",
   "network": {
     "name": "GenLayer Studio Dev",
     "chain_id": 61997
@@ -167,26 +167,94 @@
     }
   },
   "stats": {
-    "authentic": 8,
+    "authentic": 9,
     "balance_wei": "0",
-    "conclusive_checks": 8,
+    "conclusive_checks": 9,
     "inconclusive": 0,
     "manipulated": 0,
     "manipulation_rate_pct": 0,
     "pages_by_platform": {
       "AMAZON": 1,
       "APP_STORE": 3,
-      "GOOGLE_PLAY": 4
+      "GOOGLE_PLAY": 5
     },
-    "pages_tracked": 8,
+    "pages_tracked": 9,
     "paused": false,
     "refunds_owed_wei": "0",
     "suspicious": 0,
-    "total_checked": 8,
+    "total_checked": 9,
     "total_fees_wei": "0",
-    "total_requests": "8"
+    "total_requests": "9"
   },
   "checks": [
+    {
+      "available_weight": 80,
+      "check_id": 9,
+      "checked_at": 1789366619,
+      "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
+      "content_hash": "513:e02aeb96641e263a",
+      "credibility_basis": "identity-shape",
+      "evidence": {
+        "avg_rating_x10": 40,
+        "dated_reviews": 3,
+        "distinct_days": 3,
+        "distinct_names_pct": 100,
+        "dup_open_pct": 0,
+        "has_photos": false,
+        "has_response": false,
+        "helpful_pct": 100,
+        "helpful_total": 88600,
+        "lexical_pct": 75,
+        "max_same_day": 1,
+        "median_chars": 350,
+        "page_chars": 7500,
+        "rating_histogram": {
+          "1": null,
+          "2": null,
+          "3": null,
+          "4": null,
+          "5": null
+        },
+        "reviews_parsed": 3,
+        "reviews_section": true,
+        "short_pct": 0,
+        "span_days": 215,
+        "total_ratings": 66800000,
+        "verified_pct": null,
+        "weak_handle_pct": 0
+      },
+      "fee_paid_wei": "0",
+      "found": true,
+      "labels": {
+        "engagement_signals": "high natural engagement",
+        "rating_distribution": "not published by this platform",
+        "review_quality": "detailed",
+        "reviewer_credibility": "mostly credible",
+        "timing_pattern": "well spread"
+      },
+      "overall": 85,
+      "platform": "GOOGLE_PLAY",
+      "rubric_version": "1.0.0",
+      "scores": {
+        "engagement_signals": 7,
+        "rating_distribution": null,
+        "review_quality": 6,
+        "reviewer_credibility": 5,
+        "timing_pattern": 6
+      },
+      "seq": 1,
+      "source_url": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
+      "title": "TikTok - Videos, Shop & LIVE",
+      "trust_level": "AUTHENTIC",
+      "url_key": "GOOGLE_PLAY:com.zhiliaoapp.musically",
+      "weights": {
+        "engagement_signals": 15,
+        "rating_distribution": 20,
+        "review_quality": 20,
+        "reviewer_credibility": 20,
+        "timing_pattern": 25
+      }
+    },
     {
       "available_weight": 65,
       "check_id": 8,
@@ -734,6 +802,11 @@
   ],
   "verifications": [
     {
+      "check_id": 9,
+      "verified": true,
+      "mismatches": []
+    },
+    {
       "check_id": 8,
       "verified": true,
       "mismatches": []
@@ -776,6 +849,12 @@
   ],
   "all_verified": true,
   "guards": [
+    {
+      "url": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
+      "is_authentic": true,
+      "trust_level": "AUTHENTIC",
+      "consistent": true
+    },
     {
       "url": "https://apps.apple.com/us/app/id835599320",
       "is_authentic": true,
