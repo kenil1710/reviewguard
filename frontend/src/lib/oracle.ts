@@ -57,6 +57,17 @@ const call = async <T>(fn: string, args: unknown[] = []): Promise<T> => {
   }
 };
 
+/**
+ * Drop one memoised read.
+ *
+ * The check route polls for a record that does not exist yet; without this the
+ * memo would hand it the same "not found" for thirty seconds and the poll
+ * would be watching a cached answer rather than the chain.
+ */
+export function forget(fn: string, args: unknown[] = []): void {
+  memo.delete(`${fn}:${JSON.stringify(args)}`);
+}
+
 export const getConfig = () => call<Config>("get_config");
 export const getStats = () => call<Stats>("get_stats");
 export const getCheck = (id: number) => call<CheckResult>("get_check", [id]);

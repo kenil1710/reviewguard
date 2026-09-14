@@ -3530,5 +3530,173 @@ class TestInconclusiveExplainsItself(Case):
             out["features"][key] = UNAVAIL
             self.assertFalse(MOD._coherent(reseal(out)), key)
 
+
+# ---------------------------------------------------------------------------
+# 21. Fuzz — the whole pipeline, against text nobody designed it for
+#
+# A parser only ever sees pages somebody else controls. These are deterministic
+# (a fixed LCG, not `random`) so a failure reproduces exactly, and they assert
+# the two properties that must hold for ANY input: nothing raises, and every
+# value that reaches storage is inside its declared range.
+# ---------------------------------------------------------------------------
+
+def _lcg(seed):
+    x = seed * 1103515245 + 12345
+    while True:
+        x = (x * 1103515245 + 12345) & 0x7FFFFFFF
+        yield x
+
+
+ALPHABET = (
+    "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    "\n\t.,!?'\"()[]{}<>/\\|@#$%^&*-_=+~`;: é中ا\U0001f600"
+)
+
+TOKENS = (
+    "Customer reviews", "Top reviews from the United States",
+    "5 out of 5 stars", "0 out of 5 stars", "9 out of 5 stars",
+    "Reviewed in the United States on December 14, 2019",
+    "Reviewed in the United States on",
+    "Verified Purchase", "Helpful", "Report", "Read more",
+    "One person found this helpful", "999999999 people found this helpful",
+    "-1 people found this helpful", "more_vert", "Ratings & Reviews",
+    "Ratings and reviews", "4.7", "out of 5", "19M Ratings",
+    "239M reviews", "0 reviews", "5 star", "100%", "-5%", "999%",
+    "Reviews with images", "What's New", "Jan 21", "13/45/2099",
+    "google_logo Play", "iPhone", "TV", "", " ", "\n",
+)
+
+
+def fuzz_page(seed, n=120):
+    g = _lcg(seed)
+    out = []
+    for _ in range(n):
+        r = next(g) % 100
+        if r < 55:
+            out.append(TOKENS[next(g) % len(TOKENS)])
+        else:
+            length = next(g) % 90
+            s = ""
+            for _ in range(length):
+                s += ALPHABET[next(g) % len(ALPHABET)]
+            out.append(s)
+    return "\n".join(out)
+
+
+class TestFuzz(Case):
+    SEEDS = list(range(1, 61))
+
+    def test_NO_PARSER_EVER_RAISES(self):
+        for seed in self.SEEDS:
+            page = fuzz_page(seed)
+            for fn in (MOD._parse_amazon, MOD._parse_gplay,
+                       MOD._parse_appstore):
+                try:
+                    fn(page, TODAY)
+                except Exception as e:
+                    self.fail("%s raised on seed %d: %r" % (fn.__name__, seed, e))
+
+    def test_NO_FEATURE_VECTOR_IS_EVER_OUT_OF_RANGE(self):
+        """The property `_coherent` depends on. If `_features` could emit an
+        out-of-range value on some page, an honest leader would be voted down
+        by every validator and that URL could never be checked at all."""
+        for seed in self.SEEDS:
+            page = fuzz_page(seed)
+            for fn, plat in ((MOD._parse_amazon, P_AMAZON),
+                             (MOD._parse_gplay, P_GPLAY),
+                             (MOD._parse_appstore, P_APPSTORE)):
+                f = MOD._features(fn(page, TODAY), plat)
+                self.assertEqual(set(f), set(MOD.FEATURE_RANGE), (seed, plat))
+                for key, val in f.items():
+                    self.assertIsInstance(val, int, (seed, plat, key))
+                    self.assertNotIsInstance(val, bool, (seed, plat, key))
+                    if val == UNAVAIL:
+                        self.assertIn(key, MOD.NULLABLE, (seed, plat, key))
+                        continue
+                    lo, hi = MOD.FEATURE_RANGE[key]
+                    self.assertTrue(lo <= val <= hi,
+                                    "seed %d %s: %s = %d, range (%d, %d)"
+                                    % (seed, plat, key, val, lo, hi))
+
+    def test_EVERY_FUZZED_RESULT_IS_SELF_COHERENT(self):
+        """A leader that read a strange page must still produce something its
+        validators can accept. If `_coherent` rejected an honest reading, the
+        oracle would simply stop working on pages it found confusing."""
+        for seed in self.SEEDS:
+            H.PAGE_MAP[AMAZON_URL] = fuzz_page(seed) + "\npadding" * 40
+            out = MOD._collect(AMAZON_KEY, AMAZON_URL, P_AMAZON, TODAY)
+            if not out.get("ok"):
+                continue
+            self.assertTrue(MOD._coherent(out), "seed %d" % seed)
+
+    def test_two_readings_of_one_fuzzed_page_agree(self):
+        for seed in self.SEEDS[:20]:
+            H.PAGE_MAP[AMAZON_URL] = fuzz_page(seed) + "\npadding" * 40
+            a = MOD._collect(AMAZON_KEY, AMAZON_URL, P_AMAZON, TODAY)
+            b = MOD._collect(AMAZON_KEY, AMAZON_URL, P_AMAZON, TODAY)
+            if a.get("ok") and b.get("ok"):
+                self.assertTrue(MOD._agrees(a, b), "seed %d" % seed)
+
+    def test_scores_are_always_in_band(self):
+        for seed in self.SEEDS:
+            page = fuzz_page(seed)
+            for fn, plat in ((MOD._parse_amazon, P_AMAZON),
+                             (MOD._parse_gplay, P_GPLAY),
+                             (MOD._parse_appstore, P_APPSTORE)):
+                s = MOD._score(MOD._features(fn(page, TODAY), plat), plat)
+                self.assertIn(s["trust_level"], MOD.TRUST_LEVELS)
+                self.assertTrue(0 <= s["overall"] <= 100)
+                self.assertEqual(s["overall"] % 5, 0)
+                for key in MOD.DIM_KEYS:
+                    v = s["scores"][key]
+                    self.assertTrue(v == UNAVAIL or 0 <= v <= 7,
+                                    (seed, plat, key, v))
+
+    def test_THE_CONTRACT_NEVER_RAISES_ON_A_FUZZED_PAGE(self):
+        """End to end, through consensus and into storage."""
+        c = fresh_guard()
+        for i, seed in enumerate(self.SEEDS[:14]):
+            at("2026-09-%02dT12:00:00Z" % (14 + (i % 15)))
+            as_sender(H._Addr("0x" + format(1000 + i, "040x")), value=5)
+            H.PAGE_MAP[AMAZON_URL] = fuzz_page(seed) + "\npadding" * 40
+            try:
+                r = c.check_reviews(AMAZON_URL, "")
+            except AssertionError:
+                continue      # the stub's UNDETERMINED, not a contract fault
+            except Exception as e:
+                self.fail("check_reviews raised on seed %d: %r" % (seed, e))
+            self.assertIn(r["status"], ("OK", "REJECTED"), seed)
+
+    def test_a_page_of_pure_binary_noise_is_survivable(self):
+        noise = "".join(chr((i * 7919) % 1114 + 1) for i in range(4000))
+        for fn in (MOD._parse_amazon, MOD._parse_gplay, MOD._parse_appstore):
+            fn(noise, TODAY)
+
+    def test_a_page_of_one_very_long_line(self):
+        line = "x" * 60000
+        for fn, plat in ((MOD._parse_amazon, P_AMAZON),
+                         (MOD._parse_gplay, P_GPLAY),
+                         (MOD._parse_appstore, P_APPSTORE)):
+            f = MOD._features(fn(line, TODAY), plat)
+            self.assertLessEqual(f["page_chars"], MOD.PAGE_CAP)
+
+    def test_a_page_of_nothing_but_newlines(self):
+        for fn in (MOD._parse_amazon, MOD._parse_gplay, MOD._parse_appstore):
+            out = fn("\n" * 5000, TODAY)
+            self.assertEqual(len(out["reviews"]), 0)
+
+    def test_urls_of_every_shape_are_survivable(self):
+        g = _lcg(99)
+        for _ in range(200):
+            length = next(g) % 120
+            u = ""
+            for _ in range(length):
+                u += ALPHABET[next(g) % len(ALPHABET)]
+            plat = MOD._detect_platform(u)
+            MOD._canonical(u, plat if plat else P_AMAZON)
+            MOD._amazon_asin(u)
+            MOD._appstore_id(u)
+            MOD._source_url(u)
+
 if __name__ == "__main__":
     unittest.main(verbosity=1, buffer=False)

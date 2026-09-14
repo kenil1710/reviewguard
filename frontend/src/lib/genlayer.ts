@@ -36,6 +36,40 @@ export function relayClient() {
   return { wallet: createClient({ chain: studioDevnet, account }), account };
 }
 
+/**
+ * The fee preset every write must carry.
+ *
+ * studio-dev rejects a transaction whose fee DISTRIBUTION is absent with
+ * `FeeValueMustBeNonZero(1)` — a `value` alone is not enough, the distribution
+ * object has to travel with it. Measured: the first production `/api/check`
+ * reverted with exactly that, and the CLI needed the same fix.
+ *
+ * Cached for a minute because the estimate is a network round trip and the
+ * policy does not move between one visitor and the next.
+ */
+type FeePreset = { distribution: unknown; feeValue: bigint };
+let feeCache: { at: number; value: FeePreset } | null = null;
+
+export async function feePreset(
+  client: ReturnType<typeof readClient>,
+): Promise<FeePreset> {
+  if (feeCache && Date.now() - feeCache.at < 60_000) return feeCache.value;
+  const est = (await retry(() =>
+    (client as unknown as {
+      estimateTransactionFees: (a?: unknown) => Promise<{
+        distribution: unknown;
+        feeValue: string | bigint;
+      }>;
+    }).estimateTransactionFees(),
+  )) as { distribution: unknown; feeValue: string | bigint };
+  const value = {
+    distribution: est.distribution,
+    feeValue: BigInt(est.feeValue),
+  };
+  feeCache = { at: Date.now(), value };
+  return value;
+}
+
 export const txUrl = (hash: string) => `${EXPLORER}/tx/${hash}`;
 export const addressUrl = (address: string) => `${EXPLORER}/address/${address}`;
 

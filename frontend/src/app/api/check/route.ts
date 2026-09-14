@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ORACLE_ADDRESS, relayClient, retry } from "@/lib/genlayer";
+import { ORACLE_ADDRESS, relayClient, retry, feePreset } from "@/lib/genlayer";
 import { detectPlatform } from "@/lib/oracle";
 
 export const maxDuration = 300;
@@ -49,12 +49,20 @@ export async function POST(req: Request) {
   }
 
   try {
+    // The distribution is not optional on studio-dev: without it the
+    // transaction reverts with FeeValueMustBeNonZero(1) before the contract
+    // ever runs.
+    const fees = await feePreset(relay.wallet);
     const hash = await retry(() =>
       relay.wallet.writeContract({
         address: ORACLE_ADDRESS,
         functionName: "check_reviews",
         args: [url, ""],
         value: BigInt(0),
+        fees: {
+          distribution: fees.distribution,
+          feeValue: fees.feeValue,
+        },
       } as never),
     );
 
@@ -93,24 +101,35 @@ export async function POST(req: Request) {
       });
     }
 
-    // The receipt shape varies by SDK version. Fall back to reading the record
-    // rather than telling the visitor it failed when it may well have worked.
-    const { getCheckByUrl } = await import("@/lib/oracle");
-    const rec = await getCheckByUrl(url);
-    if (rec && "found" in rec && rec.found) {
-      return NextResponse.json({
-        ok: true,
-        check_id: rec.check_id,
-        url_key: rec.url_key,
-        trust_level: rec.trust_level,
-        overall: rec.overall,
-        tx: hash,
-      });
+    // The receipt shape varies by SDK version, and a decided round is not the
+    // same moment as a readable one. Rather than telling a visitor it failed
+    // when it very likely worked, POLL for the record the write should have
+    // created. A single read here reported a false failure on a check that had
+    // in fact settled forty seconds later.
+    const { getCheckByUrl, forget } = await import("@/lib/oracle");
+    for (let i = 0; i < 24; i++) {
+      forget("get_check_by_url", [url]);
+      try {
+        const rec = await getCheckByUrl(url);
+        if (rec && "found" in rec && rec.found) {
+          return NextResponse.json({
+            ok: true,
+            check_id: rec.check_id,
+            url_key: rec.url_key,
+            trust_level: rec.trust_level,
+            overall: rec.overall,
+            tx: hash,
+          });
+        }
+      } catch {
+        /* a bad minute on the RPC is not a failed check */
+      }
+      await new Promise((r) => setTimeout(r, 5000));
     }
     return NextResponse.json({
       ok: false,
       reason:
-        "The transaction settled but no record came back. It may still be finalising — try Browse results in a moment.",
+        "The validators are still settling this one. It usually appears under Browse results within a minute or two.",
       tx: hash,
     });
   } catch (e) {
