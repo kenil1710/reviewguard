@@ -104,10 +104,23 @@ head("Navigating away and back recovers the check");
   try {
     await page.waitForURL(/\/result\/\d+/, { timeout: 45_000 });
     ok(`came back and landed on ${new URL(page.url()).pathname}`);
-    const body = await page.locator("body").innerText();
-    body.includes(known.title?.slice(0, 20) ?? "")
-      ? ok("the recovered page is the right record")
-      : bad("landed somewhere unexpected", body.slice(0, 160));
+    // The URL changes before the server component has painted. Waiting for the
+    // record's own title is the difference between testing the recovery and
+    // testing how fast the render happened to be.
+    const needle = (known.title ?? "").slice(0, 20);
+    try {
+      await page.waitForFunction(
+        (want) => document.body.innerText.includes(want),
+        needle,
+        { timeout: 30_000 },
+      );
+      ok("the recovered page is the right record");
+    } catch {
+      bad(
+        "landed somewhere unexpected",
+        (await page.locator("body").innerText()).slice(0, 160),
+      );
+    }
     if (sawBanner) ok("the visitor was told their check was being recovered");
     else ok("recovery was instant enough that no banner was needed");
   } catch {
