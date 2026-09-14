@@ -471,3 +471,41 @@ it. That is the whole design in one record:
 Ten checks across three platforms: **nine AUTHENTIC scoring 75-85, one
 INCONCLUSIVE**, every one of them recomputing clean from its own stored
 evidence.
+
+---
+
+## 10. Two rounds in six timed out, and that is the case the rules exist for
+
+The re-seeding run against rubric 1.0.1 hit `VALIDATORS_TIMEOUT` twice in its
+first six submissions:
+
+```
+Error: Write 0x99a63ded…5ff9 transaction was decided as VALIDATORS_TIMEOUT;
+       leader execution result: FINISHED_WITH_RETURN.
+```
+
+The **leader finished with a return** and the validators did not answer in time.
+This is the worst-shaped failure available: the leader had a complete, valid
+result in hand and the round still did not settle.
+
+What the contract did about it, verified on chain afterwards:
+
+| | |
+|---|---|
+| `get_trust_summary(that URL)` | `{"found": false, "reason": "never checked"}` |
+| record written | none |
+| `check_id` consumed | none |
+| counters moved | none |
+| in-flight marker left set | no — the URL is immediately checkable again |
+
+A round that does not settle applies **no state at all**, so the usual case
+needs nothing: no partial record, no half-consumed id, no lock. `settle_stalled`
+exists for the narrower case where a marker survives, and it is permissionless
+precisely so that an owner cannot turn a transient network failure into
+indefinite censorship of one page.
+
+The rate at which this happens is a property of studio-dev, not of ReviewGuard —
+but it is the reason a payable path may never raise. Had `check_reviews`
+reverted on the way to consensus, the caller's deposit would have stayed in the
+contract with no record saying whose it was. Instead the round simply did not
+happen, and nothing was owed to anyone.
