@@ -1,0 +1,30 @@
+{
+  "deployments": {
+    "studiodev": {
+      "network": "studiodev",
+      "chain_id": 61997,
+      "explorer": "https://explorer-studio-dev.genlayer.com/",
+      "ReviewGuard": {
+        "address": "0x37B5C64586d7d214D3aA45aA5a0Fdd5cc5f34c30",
+        "deploy_tx": "0x322b533e962e060f327f45da71822c7b85aade463c8a6e75791df1dc7a5e28eb",
+        "owner": "0xc70ff4c06aecb796ed712029ee548834764c9fe8",
+        "rubric_version": "1.0.0",
+        "fee_wei": "0",
+        "deployed_at": "2026-09-14T11:30:00Z"
+      },
+      "MarketplaceConsumer": {
+        "address": "0x0E4a16a697955d0001c64358B14C3AF156889822",
+        "deploy_tx": "0x8a11f44f98cd6014590e4ab6192717403d4a5557858f7260c6da6753460211e2",
+        "oracle": "0x37B5C64586d7d214D3aA45aA5a0Fdd5cc5f34c30",
+        "min_score": 70,
+        "max_check_age_s": 2592000,
+        "deployed_at": "2026-09-14T11:33:00Z"
+      },
+      "probes": {
+        "RenderProbe": "0x183a0f7B71f83045aD25Bdb520FD10646c474b79",
+        "WaitProbe": "0xe06c370eC2db04167afEE97234588112bDC433BF",
+        "note": "Throwaway diagnostics, not part of the product. See docs/PROBE.md."
+      }
+    }
+  }
+}

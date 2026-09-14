@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+/* ReviewGuard's design system. One place, so a colour never drifts between a
+   badge and the bar it sits next to. */
+@theme {
+  --color-canvas: #FAFAF9;
+  --color-ink: #0F172A;
+  --color-muted: #64748B;
+  --color-brand: #4F46E5;
+  --color-brand-soft: #EEF2FF;
+  --color-authentic: #059669;
+  --color-suspicious: #D97706;
+  --color-manipulated: #E11D48;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* The page is light by design — a review-authenticity report is a document,
+     and documents are read on paper-coloured backgrounds. Declaring the scheme
+     stops a dark-mode browser painting its own ground behind us. */
+  color-scheme: light;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Numbers are tabular everywhere. A score that jiggles as it counts up reads
+   as a glitch rather than as an animation. */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 1px 3px rgb(15 23 42 / 0.03);
+}
+
+.card-hover {
+  transition: box-shadow 180ms ease, transform 180ms ease,
+    border-color 180ms ease;
+}
+.card-hover:hover {
+  box-shadow: 0 8px 24px rgb(15 23 42 / 0.08), 0 2px 6px rgb(15 23 42 / 0.04);
+  transform: translateY(-2px);
+  border-color: rgb(203 213 225);
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgb(241 245 249) 25%,
+    rgb(226 232 240) 37%,
+    rgb(241 245 249) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+/* Respect a reader who has asked the OS for less motion. Every framer-motion
+   component checks this too; this catches the CSS animations. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .skeleton { animation: none; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+::selection {
+  background: rgb(79 70 229 / 0.15);
+}
+
+/* A focus ring that is visible on white and on the brand colour alike. */
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: 0.375rem;
+}

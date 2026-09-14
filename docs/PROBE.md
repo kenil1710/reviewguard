@@ -1,0 +1,348 @@
+# Render probe — which platforms can a validator actually see?
+
+Everything below was **measured** on studio-dev (chain 61997) with a throwaway
+contract, `contracts/_render_probe.py`, deployed at
+`0x183a0f7B71f83045aD25Bdb520FD10646c474b79`. No platform claim in this project
+rests on anything but a transaction hash.
+
+The probe measured every URL three ways, because four different failures hide
+behind "it didn't work" and they call for opposite responses:
+
+| what happened | what it means | response |
+|---|---|---|
+| `403` / `WEBPAGE_LOAD_FAILED` | egress or WAF block | platform is impossible |
+| `200` + captcha text | bot wall | platform is impossible |
+| `200`, real HTML, no review text | JS-only shell | `render()` may fix it |
+| review text present and countable | works | ship it |
+
+---
+
+## 1. The verdict, first
+
+Three platforms ship. Eleven do not.
+
+| platform | plain GET | `web.render(mode="text")` | shipped |
+|---|---|---|---|
+| **Amazon** `/dp/{ASIN}` | 404 on a dead ASIN | **37,914 chars, full review bodies** | ✅ |
+| **Google Play** | — | **5,722 chars, 3 review bodies + helpful counts** | ✅ |
+| **Apple App Store** | — | **11,636 chars, ~10 review bodies** | ✅ |
+| Trustpilot | `403` AWS WAF interstitial | `WEBPAGE_LOAD_FAILED` | ❌ |
+| Yelp | `403` + `captcha` ×2 | `WEBPAGE_LOAD_FAILED` | ❌ |
+| Google Maps | `200`, 219 KB, `enable javascript` | renders **234 chars of map chrome** | ❌ |
+| Walmart | — | `Robot or human?` bot wall | ❌ |
+| Best Buy | — | `WEBPAGE_LOAD_FAILED` | ❌ |
+| Etsy | — | `WEBPAGE_LOAD_FAILED` | ❌ |
+| TripAdvisor | — | `WEBPAGE_LOAD_FAILED` | ❌ |
+| G2 | — | `WEBPAGE_LOAD_FAILED` | ❌ |
+| IMDb | — | `WEBPAGE_LOAD_FAILED` | ❌ |
+| Home Depot | — | `WEBPAGE_LOAD_FAILED` | ❌ |
+| Newegg | — | `Are you a human?` + CAPTCHA | ❌ |
+| Goodreads | — | `403 Forbidden` (13 chars) | ❌ |
+| Target | — | renders, but every product is `Item not available` | ❌ |
+| Steam | — | renders 5,114 chars — **aggregates only, no review bodies** | ❌ |
+| Chrome Web Store | — | renders 2,413 chars — too thin to score | ❌ |
+
+`https://example.com` was rendered as a control in the same transaction that
+failed on Trustpilot and Yelp, and returned its 129 characters normally. The
+failures are the platforms, not the runner.
+
+---
+
+## 2. The four URLs the brief named
+
+### 2.1 Trustpilot — `https://www.trustpilot.com/review/amazon.com`
+
+**Blocked.** Plain GET returns `403` and a 991-byte AWS WAF interstitial:
+
+```
+<!doctype html><html lang="en"><head><meta charset="UTF-8" />…
+<title>Verifying Connection</title>
+<link rel="stylesheet" href="/interstitial/interstitial.css" />
+<script src="https://a7d575be72e8.edge.sdk.awswaf.com/…
+```
+
+`web.render(mode="text", wait_after_loaded="5s")` raises `WEBPAGE_LOAD_FAILED`.
+Retried at `8s` against `https://www.trustpilot.com/review/www.amazon.com` —
+same. The WAF challenge is never cleared, so **zero review data is visible**.
+
+### 2.2 Yelp — `https://www.yelp.com/biz/starbucks-new-york`
+
+**Blocked.** Plain GET returns `403` and a 776-byte challenge containing
+`captcha` twice:
+
+```
+<html lang="en"><head><title>yelp.com</title>…
+<p id="cmsg">Please enable JS and disable any ad blocker</p>
+```
+
+`render()` raises `WEBPAGE_LOAD_FAILED`. **Zero review data.**
+
+### 2.3 Google Maps — `https://www.google.com/maps/place/Starbucks…`
+
+**Unusable, though not blocked.** Plain GET returns `200` and 219,687 bytes —
+but the body carries `enable javascript` and no structured review data, and the
+`review`/`star` hits are navigation labels.
+
+`render()` succeeds and returns **234 characters**, all of it map chrome:
+
+```
+Directions / Saved / Recents / Get app / Nearby / Send to phone / Share
+About this data / Collapse side panel / Sign in / Layers
+Map data ©2026 Google… / 50 mi
+```
+
+The place panel never populates for this client. A platform that renders the
+frame and not the content is worse than one that 403s, because it looks like a
+success. **Dropped.**
+
+### 2.4 Amazon — `https://www.amazon.com/dp/{ASIN}`
+
+**Works, and works best of the four.** Measured on `B07FZ8S74R`:
+
+- plain GET on a *dead* ASIN (`B08N5WRWNW`) → `404`, a 2,296-byte "Page Not
+  Found". Useful: the 404 path is distinguishable.
+- `render(mode="text", wait_after_loaded="6s")` → **37,914 characters** of
+  page text including every element the five dimensions need.
+
+Two Amazon URL shapes were tested and they do **not** behave the same:
+
+| URL | result |
+|---|---|
+| `amazon.com/dp/B07FZ8S74R` | 37,914 chars, reviews included ✅ |
+| `amazon.com/product-reviews/B07FZ8S74R` | **607 chars — a sign-in wall** ❌ |
+
+So ReviewGuard accepts `/dp/` and canonicalises everything to it. The dedicated
+reviews page is behind auth and must never be fetched.
+
+---
+
+## 3. What the three shipped platforms actually carry
+
+This is the table every extraction rule in `contracts/ReviewGuard.py` is written
+against. Quoted strings are verbatim from the rendered text.
+
+### 3.1 Amazon — complete
+
+```
+Customer reviews
+4.7 out of 5 stars
+4.7 out of 5
+1,037,930 global ratings
+5 star
+83%
+4 star
+12%
+3 star
+4%
+2 star
+0%
+1 star
+1%
+…
+Reviews with images
+See all photos
+Top reviews from the United States
+Tango's product reviews
+5 out of 5 stars
+The device that just keeps getting better and better with each revision
+Reviewed in the United States on December 14, 2019
+Verified Purchase
+
+Okay so first off I'd like to say that I had a gen 1 echo…
+
+Read more
+Helpful
+Report
+```
+
+Every dimension has a basis:
+
+| dimension | evidence on the page |
+|---|---|
+| timing | `Reviewed in the United States on December 14, 2019` |
+| rating distribution | the `5 star 83% … 1 star 1%` histogram |
+| review quality | full review bodies, thousands of characters |
+| reviewer credibility | `Verified Purchase`, distinct reviewer names |
+| engagement | `Helpful`, `N people found this helpful`, `Reviews with images` |
+
+### 3.2 Google Play — no rating histogram
+
+```
+4.6
+239M reviews
+5
+4
+3
+2
+1
+Jonathan Spencer
+more_vert
+August 28, 2026
+The most useless app I've encountered since apps were invented…
+6 people found this review helpful
+Did you find this helpful?
+```
+
+The histogram **labels** render (`5 4 3 2 1`) but the bar values do not — they
+are drawn, not written. So `rating_distribution` is **UNAVAILABLE** on Google
+Play, and the contract says so rather than inventing a number from the average.
+
+Only **three** review bodies render. That is thin, and `reviews_parsed` is
+carried in the evidence so a reader can see it.
+
+### 3.3 Apple App Store — no per-review rating, no engagement
+
+```
+Ratings & Reviews
+4.7
+out of 5
+19M Ratings
+WhatsApp not bad
+Jan 21
+Ed Bradway "Dad Warrior"
+WhatsApp's not bad at all—it's actually great for what it does…
+more
+Potential improvements
+06/14/2023
+Lol_hahahahahah
+I love the app and it's my main communication method…
+```
+
+Two date formats appear on the same page — `Jan 21` for recent reviews and
+`06/14/2023` for older ones. Both are parsed.
+
+There is no per-review star rating, no helpful vote and no developer response in
+the rendered text, so `rating_distribution` and `engagement_signals` are both
+**UNAVAILABLE** on this platform.
+
+### 3.4 The availability matrix, which is a contract constant
+
+| dimension | weight | Amazon | Google Play | App Store |
+|---|---|---|---|---|
+| timing_pattern | 25 | ✅ | ✅ | ✅ |
+| rating_distribution | 20 | ✅ | ❌ | ❌ |
+| review_quality | 20 | ✅ | ✅ | ✅ |
+| reviewer_credibility | 20 | ✅ *verified purchase* | ✅ *identity shape* | ✅ *identity shape* |
+| engagement_signals | 15 | ✅ | ✅ | ❌ |
+| **available weight** | | **100** | **80** | **65** |
+
+A dimension that is unavailable carries **no weight** and is reported as
+`UNAVAILABLE`, never as zero. Scoring an absent feed as zero would defame a
+product for a gap in somebody else's page. Below 60 available weight the whole
+check is `INCONCLUSIVE`.
+
+---
+
+## 4. Drift — the number the consensus design rests on
+
+`_agrees` demands exact equality on every compared field, so the question is how
+far two validators' fetches diverge. Measured by running the same extraction in
+**three separate transactions** (different leaders) against the same URL:
+
+| field | run 1 | run 2 | run 3 |
+|---|---|---|---|
+| `census.len` | 37914 | 37914 | 37914 |
+| `census.digits` | 459 | 459 | 459 |
+| `census.lines` | 756 | 756 | 756 |
+| `anchor_top_reviews` | 11537 | 11537 | 11537 |
+| `rate_5_star` | 18 | 18 | 18 |
+| `sig_verified` | 8 | 8 | 8 |
+| `sig_helpful` | 15 | 15 | 15 |
+| body sample at ⅓ offset | identical | identical | identical |
+
+**Byte-identical.** Google Play was measured twice and was likewise identical on
+every field.
+
+This is a happy finding and it is **not** a licence to compare raw values. The
+stability is somebody else's cache, it will expire, and "Top reviews" rotates.
+Every figure that crosses consensus is therefore still quantised — ordinals to
+eight buckets, counts to three significant figures, percentages to the nearest
+five — exactly as if the drift had been large. The tolerance lives in the
+quantisation and never in the comparison, because a comparison with a tolerance
+in it means two different accepted outputs for one request, and then which one
+is the check?
+
+---
+
+## 5. Hazards measured here, not assumed
+
+- **`str.replace()` is rejected by the runner.** The first probe carried
+  `pat.replace(" ", "_")` and had to be rewritten around a character loop before
+  it would deploy. `tools/audit.sh` walks the AST of both contracts for it.
+- **A deploy without a fee *distribution* reverts.** `--fee-value` alone gives
+  `FeeValueMustBeNonZero(1)` on studio-dev; the `distribution` object from
+  `genlayer estimate-fees --json` must travel with it. Every deploy and write in
+  this project goes through `tools/gl.sh` so that this is not something to
+  remember.
+- **`render()` has no status code.** It returns the body on success and *raises*
+  on everything else, with the reason in the exception text. `WEBPAGE_LOAD_FAILED`
+  is the only string a blocked platform ever produces, so a blocked platform and
+  a timed-out one are indistinguishable — which is why a failed fetch settles
+  nothing rather than settling low.
+- **A `float` in a nondet return is not calldata encodable.** Every number that
+  crosses the consensus boundary is an `int`, a `str` or a `bool` first.
+- **The runner header is exactly two lines.** GenVM parses the contiguous leading
+  `#` block as the header; a third comment line there makes the contract
+  undeployable with no error but `invalid_contract`.
+
+---
+
+## 6. Follow-up: Amazon degraded mid-build, and what that proved
+
+Three hours after §4 was written, a live `check_reviews` against
+`amazon.com/dp/B07FZ8S74R` — the same URL the fixture was captured from —
+returned `reviews_parsed: 0`. The title, the average, the total ratings and the
+full `83/12/4/0/1` histogram all still parsed. Only the individual reviews were
+gone.
+
+A second ASIN (`B0BDHWDR12`, AirPods Pro) behaved identically, so it was not
+per-product. A third dedicated probe (`contracts/_wait_probe.py`, deployed at
+`0xe06c370eC2db04167afEE97234588112bDC433BF`) measured the one variable the
+contract controls:
+
+| `wait_after_loaded` | rendered length | `Top reviews from` found | `Verified Purchase` count |
+|---|---|---|---|
+| 6s | 14,163 | **no** (`-1`) | 0 |
+| 12s | 14,210 | **no** (`-1`) | 0 |
+| 20s | 14,129 | **no** (`-1`) | 0 |
+
+Against 37,914 characters with eight reviews earlier the same day.
+
+**More than tripling the wait changed the length by 81 characters.** It is not a
+timing problem — the page Amazon serves this client simply ends before the
+review section. Raising `RENDER_WAIT` would have cost every check an extra
+fourteen seconds and fixed nothing.
+
+### What this is evidence *for*
+
+Three design decisions that looked cautious in the morning turned out to be the
+only reason the afternoon was survivable:
+
+1. **Rule 7 held.** ReviewGuard reported `INCONCLUSIVE` on all three checks. A
+   rubric that scored what it had would have taken the one surviving dimension —
+   a 20-weight histogram — and called a product with 1,037,930 ratings
+   *manipulated*, on a page that renders fine in a browser.
+2. **The failure was visible, not silent.** `is_authentic` answers false,
+   `require_authentic` reverts, and `MarketplaceConsumer` refuses INCONCLUSIVE
+   **by name** rather than by its zero score.
+3. **The inconclusive verdict was still not explicable enough.** `0 reviews
+   parsed` reads the same for a product nobody has reviewed and a page that was
+   cut short, and those call for opposite responses — believe it, versus check
+   again later. So two fields were added to the consensus axis, `page_chars`
+   (quantised to 500) and `reviews_section`, and `_why_inconclusive` now
+   answers:
+
+   > *the page rendered 14000 characters and stopped before its review list, so
+   > there was nothing to read*
+
+`test_THE_TRUNCATED_LIVE_AMAZON_PAGE_IS_INCONCLUSIVE_NOT_MANIPULATED` pins the
+exact shape studio-dev returned — summary present, review list absent — so this
+cannot regress into a verdict.
+
+### What it means for the platform table
+
+Amazon stays supported. Its page shape, parser and evidence are unchanged and
+correct, and the earlier fixtures prove the full read works when the platform
+serves it; `test/fixtures/amazon_echo_dot.txt` is that page. What varies is
+Amazon, not ReviewGuard — and when it serves a short page, the honest answer is
+the one the contract gives.

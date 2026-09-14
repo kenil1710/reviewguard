@@ -1,0 +1,16 @@
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
+
+export default function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader wallet />
+      <main className="flex-1">{children}</main>
+      <SiteFooter />
+    </div>
+  );
+}

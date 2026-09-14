@@ -1,0 +1,400 @@
+{
+  "captured_at": "2026-09-14T05:40:23.492Z",
+  "network": {
+    "name": "GenLayer Studio Dev",
+    "chain_id": 61997
+  },
+  "addresses": {
+    "ReviewGuard": "0x37B5C64586d7d214D3aA45aA5a0Fdd5cc5f34c30",
+    "MarketplaceConsumer": "0x0E4a16a697955d0001c64358B14C3AF156889822"
+  },
+  "config": {
+    "buckets": {
+      "engagement_signals": [
+        "no engagement at all",
+        "almost none",
+        "very little",
+        "little",
+        "some",
+        "moderate",
+        "good",
+        "high natural engagement"
+      ],
+      "rating_distribution": [
+        "effectively all five-star",
+        "almost all five-star",
+        "very top-heavy",
+        "top-heavy",
+        "slightly top-heavy",
+        "plausible spread",
+        "healthy spread",
+        "natural spread"
+      ],
+      "review_quality": [
+        "all generic and short",
+        "mostly generic",
+        "thin and repetitive",
+        "short but varied",
+        "mixed depth",
+        "reasonably detailed",
+        "detailed",
+        "detailed and varied"
+      ],
+      "reviewer_credibility": [
+        "no credible reviewers",
+        "almost none credible",
+        "largely doubtful",
+        "doubtful",
+        "unremarkable",
+        "mostly credible",
+        "credible",
+        "established reviewers"
+      ],
+      "timing_pattern": [
+        "one massive burst",
+        "near-total clustering",
+        "heavy clustering",
+        "noticeable clustering",
+        "mildly clustered",
+        "mostly spread",
+        "well spread",
+        "naturally distributed"
+      ]
+    },
+    "fee_wei": "0",
+    "history_cap": 6,
+    "max_fee_wei": "100000000000000000",
+    "min_available_weight": 60,
+    "min_reviews": 3,
+    "owner": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
+    "paused": false,
+    "pending_ttl_seconds": 600,
+    "platforms": {
+      "AMAZON": {
+        "available_weight": 100,
+        "credibility_basis": "verified-purchase",
+        "dimensions": {
+          "engagement_signals": true,
+          "rating_distribution": true,
+          "review_quality": true,
+          "reviewer_credibility": true,
+          "timing_pattern": true
+        },
+        "hosts": [
+          "amazon.com",
+          "amazon.co.uk",
+          "amazon.de",
+          "amazon.ca",
+          "amazon.in",
+          "amazon.co.jp",
+          "amazon.fr",
+          "amazon.es",
+          "amazon.it",
+          "amazon.com.au",
+          "amazon.com.mx",
+          "amazon.com.br",
+          "amazon.nl",
+          "amazon.se",
+          "amazon.pl",
+          "amazon.sg",
+          "amazon.ae"
+        ]
+      },
+      "APP_STORE": {
+        "available_weight": 65,
+        "credibility_basis": "identity-shape",
+        "dimensions": {
+          "engagement_signals": false,
+          "rating_distribution": false,
+          "review_quality": true,
+          "reviewer_credibility": true,
+          "timing_pattern": true
+        },
+        "hosts": [
+          "apps.apple.com"
+        ]
+      },
+      "GOOGLE_PLAY": {
+        "available_weight": 80,
+        "credibility_basis": "identity-shape",
+        "dimensions": {
+          "engagement_signals": true,
+          "rating_distribution": false,
+          "review_quality": true,
+          "reviewer_credibility": true,
+          "timing_pattern": true
+        },
+        "hosts": [
+          "play.google.com"
+        ]
+      }
+    },
+    "quantisation_step": 5,
+    "rate_limit_seconds": 300,
+    "rubric_version": "1.0.0",
+    "thresholds": {
+      "authentic_min": 70,
+      "suspicious_min": 40
+    },
+    "trust_levels": [
+      "AUTHENTIC",
+      "SUSPICIOUS",
+      "MANIPULATED",
+      "INCONCLUSIVE"
+    ],
+    "unsupported": {
+      "BEST_BUY": "render fails",
+      "ETSY": "render fails",
+      "G2": "render fails",
+      "GOODREADS": "403",
+      "GOOGLE_MAPS": "renders 234 characters of map chrome, no reviews",
+      "IMDB": "render fails",
+      "NEWEGG": "captcha",
+      "STEAM": "aggregate counts only, no review bodies",
+      "TARGET": "every product renders as unavailable",
+      "TRIPADVISOR": "render fails",
+      "TRUSTPILOT": "403 at the AWS WAF; render() fails outright",
+      "WALMART": "bot wall",
+      "YELP": "403 with a captcha challenge"
+    },
+    "url_cooldown_seconds": 900,
+    "weights": {
+      "engagement_signals": 15,
+      "rating_distribution": 20,
+      "review_quality": 20,
+      "reviewer_credibility": 20,
+      "timing_pattern": 25
+    }
+  },
+  "stats": {
+    "authentic": 2,
+    "balance_wei": "0",
+    "conclusive_checks": 2,
+    "inconclusive": 0,
+    "manipulated": 0,
+    "manipulation_rate_pct": 0,
+    "pages_by_platform": {
+      "AMAZON": 0,
+      "APP_STORE": 1,
+      "GOOGLE_PLAY": 1
+    },
+    "pages_tracked": 2,
+    "paused": false,
+    "refunds_owed_wei": "0",
+    "suspicious": 0,
+    "total_checked": 2,
+    "total_fees_wei": "0",
+    "total_requests": "2"
+  },
+  "checks": [
+    {
+      "available_weight": 65,
+      "check_id": 2,
+      "checked_at": 1789364326,
+      "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
+      "content_hash": "489:677480ac03587044",
+      "credibility_basis": "identity-shape",
+      "evidence": {
+        "avg_rating_x10": 47,
+        "dated_reviews": 4,
+        "distinct_days": 4,
+        "distinct_names_pct": 100,
+        "dup_open_pct": 0,
+        "has_photos": false,
+        "has_response": false,
+        "helpful_pct": null,
+        "helpful_total": null,
+        "lexical_pct": 75,
+        "max_same_day": 1,
+        "median_chars": 1525,
+        "page_chars": 11500,
+        "rating_histogram": {
+          "1": null,
+          "2": null,
+          "3": null,
+          "4": null,
+          "5": null
+        },
+        "reviews_parsed": 4,
+        "reviews_section": true,
+        "short_pct": 0,
+        "span_days": 2000,
+        "total_ratings": 19000000,
+        "verified_pct": null,
+        "weak_handle_pct": 50
+      },
+      "fee_paid_wei": "0",
+      "found": true,
+      "labels": {
+        "engagement_signals": "not published by this platform",
+        "rating_distribution": "not published by this platform",
+        "review_quality": "detailed and varied",
+        "reviewer_credibility": "largely doubtful",
+        "timing_pattern": "naturally distributed"
+      },
+      "overall": 80,
+      "platform": "APP_STORE",
+      "rubric_version": "1.0.0",
+      "scores": {
+        "engagement_signals": null,
+        "rating_distribution": null,
+        "review_quality": 7,
+        "reviewer_credibility": 2,
+        "timing_pattern": 7
+      },
+      "seq": 1,
+      "source_url": "https://apps.apple.com/us/app/id310633997",
+      "title": "WhatsApp Messenger",
+      "trust_level": "AUTHENTIC",
+      "url_key": "APP_STORE:us:310633997",
+      "weights": {
+        "engagement_signals": 15,
+        "rating_distribution": 20,
+        "review_quality": 20,
+        "reviewer_credibility": 20,
+        "timing_pattern": 25
+      }
+    },
+    {
+      "available_weight": 80,
+      "check_id": 1,
+      "checked_at": 1789363969,
+      "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
+      "content_hash": "488:52345833f647793e",
+      "credibility_basis": "identity-shape",
+      "evidence": {
+        "avg_rating_x10": 46,
+        "dated_reviews": 3,
+        "distinct_days": 3,
+        "distinct_names_pct": 100,
+        "dup_open_pct": 0,
+        "has_photos": false,
+        "has_response": false,
+        "helpful_pct": 100,
+        "helpful_total": 42,
+        "lexical_pct": 75,
+        "max_same_day": 1,
+        "median_chars": 400,
+        "page_chars": 5500,
+        "rating_histogram": {
+          "1": null,
+          "2": null,
+          "3": null,
+          "4": null,
+          "5": null
+        },
+        "reviews_parsed": 3,
+        "reviews_section": true,
+        "short_pct": 0,
+        "span_days": 35,
+        "total_ratings": 239000000,
+        "verified_pct": null,
+        "weak_handle_pct": 0
+      },
+      "fee_paid_wei": "0",
+      "found": true,
+      "labels": {
+        "engagement_signals": "moderate",
+        "rating_distribution": "not published by this platform",
+        "review_quality": "detailed",
+        "reviewer_credibility": "mostly credible",
+        "timing_pattern": "well spread"
+      },
+      "overall": 80,
+      "platform": "GOOGLE_PLAY",
+      "rubric_version": "1.0.0",
+      "scores": {
+        "engagement_signals": 5,
+        "rating_distribution": null,
+        "review_quality": 6,
+        "reviewer_credibility": 5,
+        "timing_pattern": 6
+      },
+      "seq": 1,
+      "source_url": "https://play.google.com/store/apps/details?id=com.whatsapp",
+      "title": "WhatsApp Messenger",
+      "trust_level": "AUTHENTIC",
+      "url_key": "GOOGLE_PLAY:com.whatsapp",
+      "weights": {
+        "engagement_signals": 15,
+        "rating_distribution": 20,
+        "review_quality": 20,
+        "reviewer_credibility": 20,
+        "timing_pattern": 25
+      }
+    }
+  ],
+  "verifications": [
+    {
+      "check_id": 2,
+      "verified": true,
+      "mismatches": []
+    },
+    {
+      "check_id": 1,
+      "verified": true,
+      "mismatches": []
+    }
+  ],
+  "all_verified": true,
+  "guards": [
+    {
+      "url": "https://apps.apple.com/us/app/id310633997",
+      "is_authentic": true,
+      "trust_level": "AUTHENTIC",
+      "consistent": true
+    },
+    {
+      "url": "https://play.google.com/store/apps/details?id=com.whatsapp",
+      "is_authentic": true,
+      "trust_level": "AUTHENTIC",
+      "consistent": true
+    }
+  ],
+  "guards_consistent": true,
+  "consumer": {
+    "policy": {
+      "active_listings": 1,
+      "balance_wei": "0",
+      "max_check_age_s": 2592000,
+      "max_listings": 200,
+      "min_score": 70,
+      "oracle": "0x37B5C64586d7d214D3aA45aA5a0Fdd5cc5f34c30",
+      "owner": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
+      "policy_note": "AUTHENTIC only. SUSPICIOUS, MANIPULATED, INCONCLUSIVE and never-checked are all refused, and the deposit is refunded in every case.",
+      "refunds_owed_wei": "0",
+      "total_attempts": "2",
+      "total_listed": "1",
+      "total_refused": "1"
+    },
+    "listings": {
+      "count": 1,
+      "items": [
+        {
+          "check_id": 1,
+          "listed_at": 1789364059,
+          "overall": 80,
+          "platform": "GOOGLE_PLAY",
+          "price_wei": "1000000",
+          "title": "WhatsApp Messenger",
+          "trust_level": "AUTHENTIC",
+          "url_key": "GOOGLE_PLAY:com.whatsapp"
+        }
+      ]
+    },
+    "refusals": {
+      "count": 1,
+      "items": [
+        {
+          "at": 1789364074,
+          "overall": 0,
+          "reason": "ReviewGuard has never checked that page: never checked",
+          "refunded_wei": "0",
+          "trust_level": "INCONCLUSIVE",
+          "url": "https://www.amazon.com/dp/B07FZ8S74R",
+          "who": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8"
+        }
+      ]
+    }
+  }
+}
