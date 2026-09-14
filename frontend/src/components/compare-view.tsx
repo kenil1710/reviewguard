@@ -179,14 +179,34 @@ export function CompareView({ initialA = "" }: { initialA?: string }) {
                 <Trophy size={17} className="text-amber-500" strokeWidth={2.2} aria-hidden="true" />
                 <h2 className="font-semibold text-slate-900">
                   {winner === null
-                    ? "A dead heat"
+                    ? "The same overall score"
                     : `Product ${winner.toUpperCase()} has the more authentic reviews`}
                 </h2>
               </div>
               <p className="mt-1.5 text-sm text-slate-600">
-                {winner === null
-                  ? "Both scored identically on the dimensions their platforms publish."
-                  : `${Math.abs(a.rec!.overall - b.rec!.overall)} points apart on the 0–100 scale.`}
+                {winner === null ? (
+                  <>
+                    Both reached{" "}
+                    <span className="num font-semibold text-slate-800">
+                      {a.rec!.overall}
+                    </span>
+                    {a.rec!.available_weight === b.rec!.available_weight ? (
+                      " on the same rubric."
+                    ) : (
+                      <>
+                        {" "}— but over different rubrics, because their
+                        platforms publish different things (
+                        <span className="num">{a.rec!.available_weight}</span>{" "}
+                        against{" "}
+                        <span className="num">{b.rec!.available_weight}</span>{" "}
+                        measurable points). The dimension rows below are where
+                        they actually differ.
+                      </>
+                    )}
+                  </>
+                ) : (
+                  `${Math.abs(a.rec!.overall - b.rec!.overall)} points apart on the 0–100 scale.`
+                )}
               </p>
             </>
           )}

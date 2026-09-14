@@ -346,3 +346,49 @@ correct, and the earlier fixtures prove the full read works when the platform
 serves it; `test/fixtures/amazon_echo_dot.txt` is that page. What varies is
 Amazon, not ReviewGuard — and when it serves a short page, the honest answer is
 the one the contract gives.
+
+---
+
+## 7. What a failed round actually looks like
+
+Recorded because it is the case the refund path exists for, and because it
+happened on the live site rather than in a test.
+
+The production `/api/check` submitted a check of an App Store listing. The
+transaction settled and **no record appeared**. The receipt says why:
+
+```
+status:  'Finalized · Validators Timeout'
+outcome: 'Validators Timeout'
+leader result: { status: 'contract_error',
+                 payload: 'GenVM internal error: GenVM internal error' }
+validators:    { execution_result: 'ERROR',
+                 stderr: 'Validator execution cancelled after quorum' }
+```
+
+The leader's execution died inside GenVM. Nothing about ReviewGuard's rubric
+was involved, and **nothing was stored** — which is the whole point. A round
+that does not settle applies no state, so:
+
+- no `check_id` was consumed;
+- no counter moved;
+- the caller's deposit was never at risk;
+- the in-flight marker was cleared by the same exit path, so the URL was
+  immediately checkable again.
+
+The very next submission of a different page, through the same route, returned
+`{"ok": true, "check_id": 4, "trust_level": "AUTHENTIC", "overall": 80}` in
+**69 seconds** end to end.
+
+Two things were fixed on the back of it, both in the front end rather than the
+contract:
+
+1. **The fee distribution is not optional.** The first production submission
+   reverted with `FeeValueMustBeNonZero(1)` before the contract ever ran —
+   `genlayer-js` needs `fees: {distribution, feeValue}`, exactly as the CLI
+   needs `--fees` alongside `--fee-value`.
+2. **A settled round is not the same moment as a readable one.** The route read
+   the record once, got "not found", and told the visitor their check had
+   failed when it had in fact worked. It now polls for up to two minutes and
+   drops its memo each time, so it is watching the chain rather than a cached
+   answer from thirty seconds ago.
