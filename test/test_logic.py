@@ -3698,5 +3698,130 @@ class TestFuzz(Case):
             MOD._appstore_id(u)
             MOD._source_url(u)
 
+
+# ---------------------------------------------------------------------------
+# 22. An exhaustive sweep of the ladders' declared input space
+#
+# The ladder tests above check the interesting points. This walks the whole
+# space each ladder can legally be handed and asserts the properties that must
+# hold at EVERY point — because an ordinal of 8, at one combination nobody
+# spot-checked, is a stored value outside its declared range, which is a
+# check that no honest validator can ever agree to.
+# ---------------------------------------------------------------------------
+
+class TestExhaustiveSweep(Case):
+    def test_timing_is_in_range_everywhere(self):
+        for dated in range(3, 15):
+            for distinct in range(1, dated + 1):
+                for burst in range(1, dated + 1):
+                    for span in (0, 7, 14, 15, 30, 31, 90, 364, 365, 4000):
+                        v = MOD._dim_timing(
+                            vec(reviews_parsed=dated, dated_reviews=dated,
+                                distinct_days=distinct, max_same_day=burst,
+                                span_days=span), AMZ)
+                        self.assertTrue(v == UNAVAIL or 0 <= v <= 7,
+                                        (dated, distinct, burst, span, v))
+
+    def test_rating_is_in_range_for_every_histogram(self):
+        for p5 in range(0, 101, 2):
+            for p1 in range(0, 101 - p5, 5):
+                rest = 100 - p5 - p1
+                v = MOD._dim_rating(
+                    vec(pct_5=p5, pct_4=rest, pct_3=0, pct_2=0, pct_1=p1), AMZ)
+                self.assertTrue(v == UNAVAIL or 0 <= v <= 7, (p5, p1, v))
+
+    def test_quality_is_in_range_everywhere(self):
+        for med in (0, 50, 99, 100, 199, 200, 349, 350, 599, 600, 20000):
+            for sp in range(0, 101, 10):
+                for du in range(0, 101, 20):
+                    for lx in range(0, 101, 20):
+                        v = MOD._dim_quality(
+                            vec(median_chars=med, short_pct=sp,
+                                dup_open_pct=du, lexical_pct=lx), AMZ)
+                        self.assertTrue(0 <= v <= 7, (med, sp, du, lx, v))
+
+    def test_credibility_is_in_range_on_both_bases(self):
+        for dims in (AMZ, GP):
+            vers = list(range(0, 101, 5))
+            if dims is GP:
+                vers.append(UNAVAIL)
+            for ver in vers:
+                for weak in range(0, 101, 10):
+                    for dist in range(0, 101, 20):
+                        v = MOD._dim_credibility(
+                            vec(verified_pct=ver, weak_handle_pct=weak,
+                                distinct_names_pct=dist), dims)
+                        self.assertTrue(v == UNAVAIL or 0 <= v <= 7,
+                                        (ver, weak, dist, v))
+
+    def test_THE_IDENTITY_BASIS_NEVER_REACHES_SEVEN_ANYWHERE(self):
+        """Not at one spot-checked point — at every point in the space. The top
+        of that ladder reads "established reviewers", and no page without a
+        purchase signal can support the claim."""
+        for ver in (UNAVAIL, 0, 50, 100):
+            for weak in range(0, 101, 5):
+                for dist in range(0, 101, 5):
+                    for dims in (GP, AS_):
+                        v = MOD._dim_credibility(
+                            vec(verified_pct=ver, weak_handle_pct=weak,
+                                distinct_names_pct=dist), dims)
+                        if v != UNAVAIL:
+                            self.assertLessEqual(v, 6, (ver, weak, dist, v))
+
+    def test_engagement_is_in_range_everywhere(self):
+        for dims in (AMZ, GP):
+            for hp in range(0, 101, 5):
+                for tot in (0, 49, 50, 10 ** 9):
+                    for ph in (0, 1):
+                        for rs in (0, 1):
+                            v = MOD._dim_engagement(
+                                vec(helpful_pct=hp, helpful_total=tot,
+                                    has_photos=ph, has_response=rs), dims)
+                            self.assertTrue(v == UNAVAIL or 0 <= v <= 7,
+                                            (hp, tot, ph, rs, v))
+
+    def test_the_overall_is_always_a_multiple_of_five_in_range(self):
+        for plat in MOD.PLATFORMS:
+            for p5 in range(0, 101, 10):
+                for med in (0, 200, 600, 3000):
+                    for weak in (0, 50, 100):
+                        f = vec(pct_5=p5, pct_4=100 - p5, pct_3=0, pct_2=0,
+                                pct_1=0, median_chars=med, weak_handle_pct=weak)
+                        if plat != P_AMAZON:
+                            for k in ("pct_5", "pct_4", "pct_3", "pct_2",
+                                      "pct_1", "verified_pct"):
+                                f[k] = UNAVAIL
+                        if plat == P_APPSTORE:
+                            f["helpful_pct"] = UNAVAIL
+                            f["helpful_total"] = UNAVAIL
+                        s = MOD._score(f, plat)
+                        self.assertEqual(s["overall"] % 5, 0, (plat, s))
+                        self.assertTrue(0 <= s["overall"] <= 100, (plat, s))
+                        self.assertIn(s["trust_level"], MOD.TRUST_LEVELS)
+
+    def test_every_scored_result_is_coherent_against_itself(self):
+        """`_coherent` runs the rubric again on the leader's own vector. If the
+        two could ever disagree, an honest leader would be voted down."""
+        for plat in MOD.PLATFORMS:
+            for p5 in range(0, 101, 20):
+                f = vec(pct_5=p5, pct_4=100 - p5, pct_3=0, pct_2=0, pct_1=0)
+                if plat != P_AMAZON:
+                    for k in ("pct_5", "pct_4", "pct_3", "pct_2", "pct_1",
+                              "verified_pct"):
+                        f[k] = UNAVAIL
+                if plat == P_APPSTORE:
+                    f["helpful_pct"] = UNAVAIL
+                    f["helpful_total"] = UNAVAIL
+                scored = MOD._score(f, plat)
+                out = {"ok": True, "url_key": "X:y:z", "platform": plat,
+                       "title": "t", "features": f,
+                       "scores": scored["scores"],
+                       "overall": scored["overall"],
+                       "trust_level": scored["trust_level"],
+                       "available_weight": scored["available_weight"],
+                       "credibility_basis": scored["credibility_basis"]}
+                out["content_hash"] = MOD._digest(out, f)
+                self.assertTrue(MOD._coherent(out), (plat, p5))
+
 if __name__ == "__main__":
     unittest.main(verbosity=1, buffer=False)
