@@ -8,7 +8,7 @@
 #     followed by a poll rather than a fixed sleep.
 set -uo pipefail
 cd "$(dirname "$0")/.."
-GUARD="${GUARD:-0x37B5C64586d7d214D3aA45aA5a0Fdd5cc5f34c30}"
+GUARD="${GUARD:-0xc5fdA37427Ba24E0A35B446cBEf7a2C5E7EE61b3}"
 # Only `mywallet` is funded on studio-dev, so every check comes from it and the
 # script waits out RATE_LIMIT_SECONDS between submissions. That wait is the
 # contract's anti-abuse rule doing its job, not a delay to engineer around.

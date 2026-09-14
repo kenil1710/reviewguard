@@ -3823,5 +3823,128 @@ class TestExhaustiveSweep(Case):
                 out["content_hash"] = MOD._digest(out, f)
                 self.assertTrue(MOD._coherent(out), (plat, p5))
 
+
+# ---------------------------------------------------------------------------
+# 23. The two reasons a dimension can be unavailable are different claims
+#
+# Google Play genuinely does not publish a star histogram — a fact about the
+# PLATFORM. An Amazon page that rendered without its review list publishes all
+# five dimensions and did not serve them that time — a fact about ONE FETCH.
+# Printing the first sentence about the second is a false statement about
+# Amazon, on a page about somebody's product.
+# ---------------------------------------------------------------------------
+
+class TestUnavailabilityReason(Case):
+    def setUp(self):
+        super().setUp()
+        self.c = fresh_guard()
+
+    def _record_for(self, url, page=None, sender=ALICE):
+        if page is not None:
+            key = {AMAZON_URL: AMAZON_URL, GPLAY_URL: GPLAY_FETCH,
+                   APPSTORE_URL: APPSTORE_FETCH}[url]
+            H.PAGE_MAP[key] = page
+        as_sender(sender)
+        self.c.check_reviews(url, "")
+        return self.c.get_check_by_url(url)
+
+    def test_A_PLATFORM_THAT_DOES_NOT_PUBLISH_SAYS_SO(self):
+        rec = self._record_for(GPLAY_URL)
+        self.assertIsNone(rec["scores"]["rating_distribution"])
+        self.assertEqual(rec["labels"]["rating_distribution"],
+                         "not published by this platform")
+        self.assertEqual(rec["unavailable_because"], "platform")
+
+    def test_A_TRUNCATED_PAGE_DOES_NOT_BLAME_THE_PLATFORM(self):
+        """The live shape: amazon.com/dp rendered 14,000 characters and stopped
+        before its review list. Amazon publishes all five dimensions; it simply
+        did not serve them. The record must not say otherwise."""
+        text = fixture("amazon_echo_dot")
+        cut = text[: text.find("Top reviews from")]
+        rec = self._record_for(AMAZON_URL, cut)
+        self.assertEqual(rec["trust_level"], MOD.T_INCONCLUSIVE)
+        self.assertEqual(rec["unavailable_because"], "page")
+        for key in ("timing_pattern", "review_quality",
+                    "reviewer_credibility", "engagement_signals"):
+            self.assertIsNone(rec["scores"][key], key)
+            self.assertEqual(rec["labels"][key],
+                             "the page did not render its reviews", key)
+            self.assertNotIn("platform", rec["labels"][key], key)
+
+    def test_the_histogram_that_DID_render_still_reads_normally(self):
+        """The same record: four dimensions unavailable for a page reason, and
+        the one that rendered scored normally. The label must not be blanket."""
+        text = fixture("amazon_echo_dot")
+        cut = text[: text.find("Top reviews from")]
+        rec = self._record_for(AMAZON_URL, cut)
+        self.assertIsNotNone(rec["scores"]["rating_distribution"])
+        self.assertIn(rec["labels"]["rating_distribution"],
+                      MOD.BUCKETS["rating_distribution"])
+        self.assertEqual(rec["evidence"]["rating_histogram"]["5"], 83)
+
+    def test_a_full_page_labels_every_scored_dimension_with_its_bucket(self):
+        rec = self._record_for(AMAZON_URL)
+        self.assertEqual(rec["trust_level"], MOD.T_AUTHENTIC)
+        self.assertEqual(rec["unavailable_because"], "platform")
+        for key in MOD.DIM_KEYS:
+            self.assertIsNotNone(rec["scores"][key], key)
+            self.assertIn(rec["labels"][key], MOD.BUCKETS[key], key)
+
+    def test_an_app_store_record_separates_its_two_kinds(self):
+        """The App Store page is the interesting mixed case when it is short:
+        rating_distribution and engagement are PLATFORM silences whatever
+        happens, while timing, quality and credibility are page shortfalls."""
+        text = fixture("appstore_whatsapp")
+        cut = text[: text.find("Ratings & Reviews") + 40]
+        rec = self._record_for(APPSTORE_URL, cut + "\npadding" * 60)
+        self.assertEqual(rec["trust_level"], MOD.T_INCONCLUSIVE)
+        self.assertEqual(rec["labels"]["rating_distribution"],
+                         "not published by this platform")
+        self.assertEqual(rec["labels"]["engagement_signals"],
+                         "not published by this platform")
+        for key in ("timing_pattern", "review_quality",
+                    "reviewer_credibility"):
+            self.assertEqual(rec["labels"][key],
+                             "the page did not render its reviews", key)
+
+    def test_the_label_never_claims_a_platform_is_silent_when_it_is_not(self):
+        """Swept across every platform and both page shapes."""
+        cases = [
+            (AMAZON_URL, P_AMAZON, fixture("amazon_echo_dot")),
+            (GPLAY_URL, P_GPLAY, fixture("gplay_whatsapp")),
+            (APPSTORE_URL, P_APPSTORE, fixture("appstore_whatsapp")),
+        ]
+        for i, (url, plat, full) in enumerate(cases):
+            for j, page in enumerate((full, full[: len(full) // 4])):
+                c = fresh_guard()
+                key = {AMAZON_URL: AMAZON_URL, GPLAY_URL: GPLAY_FETCH,
+                       APPSTORE_URL: APPSTORE_FETCH}[url]
+                H.PAGE_MAP[key] = page + "\npadding" * 60
+                as_sender(H._Addr("0x" + format(700 + i * 4 + j, "040x")))
+                try:
+                    c.check_reviews(url, "")
+                except AssertionError:
+                    continue
+                rec = c.get_check_by_url(url)
+                if not rec.get("found"):
+                    continue
+                dims = MOD.PLATFORM_DIMS[plat]
+                for dk in MOD.DIM_KEYS:
+                    if rec["labels"][dk] != "not published by this platform":
+                        continue
+                    self.assertFalse(
+                        dims[MOD.DIM_FLAG[dk]],
+                        "%s: claimed %s does not publish %s, but it does"
+                        % (url, plat, dk))
+
+    def test_unavailable_because_is_always_one_of_two_words(self):
+        for url, page in ((AMAZON_URL, None), (GPLAY_URL, None),
+                          (APPSTORE_URL, None)):
+            c = fresh_guard()
+            as_sender(ALICE)
+            c.check_reviews(url, "")
+            rec = c.get_check_by_url(url)
+            self.assertIn(rec["unavailable_because"], ("page", "platform"))
+
 if __name__ == "__main__":
     unittest.main(verbosity=1, buffer=False)

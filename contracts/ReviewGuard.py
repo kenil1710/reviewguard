@@ -70,7 +70,7 @@ import typing
 #
 # str.replace() is rejected by the runner; slice around find() instead.
 
-RUBRIC_VERSION = "1.0.0"
+RUBRIC_VERSION = "1.0.1"
 
 # --- economics. The fee defaults to ZERO: this is a public good on a testnet
 # and nobody should pay to ask whether a product's reviews are real. The
@@ -2593,8 +2593,24 @@ class ReviewGuard(gl.contract.Contract):
 		return None if n == UNAVAIL else n
 
 	def _record(self, rec: Check) -> dict:
+		"""One stored check, rendered for a reader.
+
+		The two reasons a dimension can be unavailable are NOT the same claim
+		and must not share a label. Google Play genuinely does not publish a
+		star histogram — that is a fact about the platform. An Amazon page that
+		rendered without its review list publishes all five dimensions and
+		simply did not serve them that time — that is a fact about one fetch.
+		Saying "not published by this platform" about the second would be a
+		false statement about Amazon, printed on a page about somebody's
+		product."""
 		scores = {}
 		labels = {}
+		platform = str(rec.platform)
+		dims = PLATFORM_DIMS.get(platform)
+		# The page itself came up short: the review list was absent, or too few
+		# reviews were on it to measure anything that needs them.
+		page_short = (not bool(rec.reviews_section)
+			or int(rec.reviews_parsed) < MIN_REVIEWS)
 		pairs = (("timing_pattern", rec.d_timing),
 			("rating_distribution", rec.d_rating),
 			("review_quality", rec.d_quality),
@@ -2604,7 +2620,15 @@ class ReviewGuard(gl.contract.Contract):
 			val = _as_int(raw, UNAVAIL)
 			if val == UNAVAIL:
 				scores[key] = None
-				labels[key] = "not published by this platform"
+				platform_has_it = True
+				if dims is not None:
+					platform_has_it = bool(dims[_dim_flag(key)])
+				if not platform_has_it:
+					labels[key] = "not published by this platform"
+				elif page_short:
+					labels[key] = "the page did not render its reviews"
+				else:
+					labels[key] = "not enough evidence on this page"
 			else:
 				scores[key] = val
 				labels[key] = BUCKETS[key][_clamp(val, 0, ORDINAL_MAX)]
@@ -2623,6 +2647,9 @@ class ReviewGuard(gl.contract.Contract):
 			"weights": {k: DIM_WEIGHTS[k] for k in DIM_KEYS},
 			"scores": scores,
 			"labels": labels,
+			# Which KIND of shortfall this was, so a reader is told whether the
+			# platform is silent or the fetch was.
+			"unavailable_because": ("page" if page_short else "platform"),
 			"evidence": {
 				"reviews_parsed": int(rec.reviews_parsed),
 				"avg_rating_x10": self._unavail(rec.avg_rating_x10),

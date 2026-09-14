@@ -9,11 +9,29 @@ import { studioDevnet } from "genlayer-js/chains";
  * variable somebody forgot to set is a site that renders an error page, and the
  * address is public information anyway.
  */
-export const ORACLE_ADDRESS = (process.env.NEXT_PUBLIC_ORACLE_ADDRESS ??
-  "0x37B5C64586d7d214D3aA45aA5a0Fdd5cc5f34c30") as `0x${string}`;
+/**
+ * `??` is the wrong operator here and it cost a broken deploy.
+ *
+ * It falls back only on null or undefined, so an environment variable set to
+ * the EMPTY STRING — which is what a failed `vercel env add` leaves behind —
+ * sails straight through and becomes the contract address. Every read then
+ * fails against `""` with an error that looks like an RPC outage. This checks
+ * the value is actually an address before trusting it.
+ */
+const addr = (value: string | undefined, fallback: string): `0x${string}` =>
+  /^0x[0-9a-fA-F]{40}$/.test(value ?? "")
+    ? (value as `0x${string}`)
+    : (fallback as `0x${string}`);
 
-export const CONSUMER_ADDRESS = (process.env.NEXT_PUBLIC_CONSUMER_ADDRESS ??
-  "0x0E4a16a697955d0001c64358B14C3AF156889822") as `0x${string}`;
+export const ORACLE_ADDRESS = addr(
+  process.env.NEXT_PUBLIC_ORACLE_ADDRESS,
+  "0xc5fdA37427Ba24E0A35B446cBEf7a2C5E7EE61b3",
+);
+
+export const CONSUMER_ADDRESS = addr(
+  process.env.NEXT_PUBLIC_CONSUMER_ADDRESS,
+  "0x63Af3Ba8677FF2a09FfC39Fb09Eb93535f084B34",
+);
 
 export const EXPLORER = "https://explorer-studio-dev.genlayer.com";
 export const CHAIN = studioDevnet;

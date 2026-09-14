@@ -84,6 +84,9 @@ export interface CheckRecord {
   weights: Record<DimensionKey, number>;
   scores: Record<DimensionKey, number | null>;
   labels: Record<DimensionKey, string>;
+  /** Whether an unavailable dimension is the platform's silence or this
+   *  fetch's. They are different claims and must not share wording. */
+  unavailable_because: "page" | "platform";
   evidence: Evidence;
   content_hash: string;
   rubric_version: string;

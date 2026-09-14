@@ -161,18 +161,32 @@ export default async function ResultPage({
                 Not enough evidence to judge
               </p>
               <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                Only{" "}
-                <span className="num font-semibold">
-                  {rec.evidence.reviews_parsed}
-                </span>{" "}
-                individual{" "}
-                {rec.evidence.reviews_parsed === 1 ? "review" : "reviews"}{" "}
-                rendered, and{" "}
-                <span className="num font-semibold">
-                  {rec.available_weight}/100
-                </span>{" "}
-                of the rubric could be measured. ReviewGuard says so rather than
-                guessing — this is <strong>not</strong> a low score.
+                {rec.unavailable_because === "page" ? (
+                  <>
+                    The page arrived without its review list, so only{" "}
+                    <span className="num font-semibold">
+                      {rec.available_weight}/100
+                    </span>{" "}
+                    of the rubric could be measured. ReviewGuard says so rather
+                    than guessing — this is <strong>not</strong> a low score,
+                    and it is not a judgement about the product.
+                  </>
+                ) : (
+                  <>
+                    Only{" "}
+                    <span className="num font-semibold">
+                      {rec.evidence.reviews_parsed}
+                    </span>{" "}
+                    individual{" "}
+                    {rec.evidence.reviews_parsed === 1 ? "review" : "reviews"}{" "}
+                    rendered, and{" "}
+                    <span className="num font-semibold">
+                      {rec.available_weight}/100
+                    </span>{" "}
+                    of the rubric could be measured. This is{" "}
+                    <strong>not</strong> a low score.
+                  </>
+                )}
               </p>
             </div>
           ) : (

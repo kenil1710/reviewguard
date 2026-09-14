@@ -10,11 +10,11 @@ ordinals and the evidence behind them — none of which any single party can mov
 | | |
 |---|---|
 | **Network** | GenLayer Studio Dev (chain `61997`) |
-| **ReviewGuard** | [`0x37B5C64586d7d214D3aA45aA5a0Fdd5cc5f34c30`](https://explorer-studio-dev.genlayer.com/address/0x37B5C64586d7d214D3aA45aA5a0Fdd5cc5f34c30) |
-| **MarketplaceConsumer** | [`0x0E4a16a697955d0001c64358B14C3AF156889822`](https://explorer-studio-dev.genlayer.com/address/0x0E4a16a697955d0001c64358B14C3AF156889822) |
+| **ReviewGuard** | [`0xc5fdA37427Ba24E0A35B446cBEf7a2C5E7EE61b3`](https://explorer-studio-dev.genlayer.com/address/0xc5fdA37427Ba24E0A35B446cBEf7a2C5E7EE61b3) |
+| **MarketplaceConsumer** | [`0x63Af3Ba8677FF2a09FfC39Fb09Eb93535f084B34`](https://explorer-studio-dev.genlayer.com/address/0x63Af3Ba8677FF2a09FfC39Fb09Eb93535f084B34) |
 | **Rubric** | `1.0.0` · fee `0` |
-| **Offline tests** | 428, stdlib only |
-| **Audit** | 428 tests + 85 + 41 + 26 mechanical checks |
+| **Offline tests** | 435, stdlib only |
+| **Audit** | 435 tests + 85 + 42 + 26 mechanical checks |
 
 ---
 
@@ -162,7 +162,7 @@ contracts/
   _render_probe.py          throwaway: which platforms can be read
   _wait_probe.py            throwaway: does a longer wait help? (no)
 test/
-  test_logic.py             428 offline tests, stdlib only
+  test_logic.py             435 offline tests, stdlib only
   harness.py                the v0.6 runtime stub
   fixtures/*.txt            real rendered pages, pulled off studio-dev
 docs/
@@ -171,7 +171,7 @@ docs/
 tools/
   gl.sh                     fee-aware deploy and write
   audit.sh                  85 mechanical checks of the source
-  audit_claims.mjs          41 claims verified against the live chain
+  audit_claims.mjs          42 claims verified against the live chain
   audit_site.mjs            26 UI flows driven in a real browser
   seed.sh                   real checks against studio-dev
 frontend/                   Next.js 16 + Tailwind 4
@@ -180,11 +180,11 @@ frontend/                   Next.js 16 + Tailwind 4
 ## Running it
 
 ```bash
-python3 test/test_logic.py       # 428 tests, no network, no genlayer install
+python3 test/test_logic.py       # 435 tests, no network, no genlayer install
 bash tools/audit.sh              # 85 mechanical checks of the source
 
 # these three read the live chain and the live site
-node tools/audit_claims.mjs      # 41 claims, verified against the contract
+node tools/audit_claims.mjs      # 42 claims, verified against the contract
 node tools/audit_site.mjs        # 26 UI flows, driven in a real browser
 node tools/evidence.mjs          # regenerate docs/evidence.json
 
@@ -201,9 +201,9 @@ remember.
 
 | | checks | catches |
 |---|---|---|
-| `test/test_logic.py` | 428 | rubric bugs, consensus forgeries, money invariants, fuzz |
+| `test/test_logic.py` | 435 | rubric bugs, consensus forgeries, money invariants, fuzz |
 | `tools/audit.sh` | 85 | runner-format hazards, off-axis storage fields, a counter that moved before a revert |
-| `tools/audit_claims.mjs` | 41 | a sentence in the docs that the deployed contract no longer supports |
+| `tools/audit_claims.mjs` | 42 | a sentence in the docs that the deployed contract no longer supports |
 | `tools/audit_site.mjs` | 26 | a UI flow that paints but does not work |
 
 The last two are the ones that keep finding things. `audit_claims` verifies

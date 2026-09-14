@@ -25,6 +25,38 @@ export function DimensionBars({
   weights?: Record<DimensionKey, number>;
   compact?: boolean;
 }) {
+  /** The contract distinguishes the two reasons; this renders the distinction.
+   *  Saying "this platform publishes nothing to measure here" about an Amazon
+   *  page that simply arrived truncated is a false statement about Amazon. */
+  const explain = (key: DimensionKey) => {
+    const label = labels?.[key] ?? "";
+    if (label.startsWith("the page did not render")) {
+      return (
+        <>
+          The page arrived without its review list, so there was nothing to
+          measure. This platform <strong>does</strong> publish this signal — the
+          dimension carries <strong>no weight</strong> here rather than counting
+          as zero, and a later check often reads it fine.
+        </>
+      );
+    }
+    if (label.startsWith("not enough evidence")) {
+      return (
+        <>
+          Too few reviews rendered to measure this. The dimension carries{" "}
+          <strong>no weight</strong> rather than counting as zero.
+        </>
+      );
+    }
+    return (
+      <>
+        This platform publishes nothing to measure here, so the dimension
+        carries <strong>no weight</strong> in the score rather than counting as
+        zero.
+      </>
+    );
+  };
+
   const reduce = useReducedMotion();
   return (
     <ul className="space-y-4">
@@ -46,7 +78,9 @@ export function DimensionBars({
               {missing ? (
                 <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-400">
                   <HelpCircle size={12} strokeWidth={2} aria-hidden="true" />
-                  not published
+                  {labels?.[key]?.startsWith("the page did not render")
+                    ? "page was short"
+                    : "not published"}
                 </span>
               ) : (
                 <span className="num text-sm font-bold text-slate-700">
@@ -61,7 +95,7 @@ export function DimensionBars({
               role="img"
               aria-label={
                 missing
-                  ? `${DIMENSION_LABELS[key]}: not published by this platform`
+                  ? `${DIMENSION_LABELS[key]}: ${labels?.[key] ?? "unavailable"}`
                   : `${DIMENSION_LABELS[key]}: ${v} of 7`
               }
             >
@@ -85,11 +119,7 @@ export function DimensionBars({
             {!compact && (
               <p className="mt-1.5 text-xs leading-relaxed text-slate-500">
                 {missing ? (
-                  <>
-                    This platform publishes nothing to measure here, so the
-                    dimension carries <strong>no weight</strong> in the score
-                    rather than counting as zero.
-                  </>
+                  explain(key)
                 ) : (
                   <>
                     <span className="font-medium text-slate-600">
