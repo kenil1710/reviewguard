@@ -13,8 +13,8 @@ ordinals and the evidence behind them — none of which any single party can mov
 | **ReviewGuard** | [`0x37B5C64586d7d214D3aA45aA5a0Fdd5cc5f34c30`](https://explorer-studio-dev.genlayer.com/address/0x37B5C64586d7d214D3aA45aA5a0Fdd5cc5f34c30) |
 | **MarketplaceConsumer** | [`0x0E4a16a697955d0001c64358B14C3AF156889822`](https://explorer-studio-dev.genlayer.com/address/0x0E4a16a697955d0001c64358B14C3AF156889822) |
 | **Rubric** | `1.0.0` · fee `0` |
-| **Offline tests** | 410, stdlib only |
-| **Audit** | `bash tools/audit.sh` — 80 checks |
+| **Offline tests** | 428, stdlib only |
+| **Audit** | 428 tests + 81 + 41 + 26 mechanical checks |
 
 ---
 
@@ -162,7 +162,7 @@ contracts/
   _render_probe.py          throwaway: which platforms can be read
   _wait_probe.py            throwaway: does a longer wait help? (no)
 test/
-  test_logic.py             410 offline tests, stdlib only
+  test_logic.py             428 offline tests, stdlib only
   harness.py                the v0.6 runtime stub
   fixtures/*.txt            real rendered pages, pulled off studio-dev
 docs/
@@ -170,7 +170,9 @@ docs/
   evidence.json             live on-chain state
 tools/
   gl.sh                     fee-aware deploy and write
-  audit.sh                  80 mechanical checks
+  audit.sh                  81 mechanical checks of the source
+  audit_claims.mjs          41 claims verified against the live chain
+  audit_site.mjs            26 UI flows driven in a real browser
   seed.sh                   real checks against studio-dev
 frontend/                   Next.js 16 + Tailwind 4
 ```
@@ -178,11 +180,37 @@ frontend/                   Next.js 16 + Tailwind 4
 ## Running it
 
 ```bash
-python3 test/test_logic.py     # 410 tests, no network
-bash tools/audit.sh            # 80 checks
+python3 test/test_logic.py       # 428 tests, no network, no genlayer install
+bash tools/audit.sh              # 81 mechanical checks of the source
+
+# these three read the live chain and the live site
+node tools/audit_claims.mjs      # 41 claims, verified against the contract
+node tools/audit_site.mjs        # 26 UI flows, driven in a real browser
+node tools/evidence.mjs          # regenerate docs/evidence.json
+
 ./tools/gl.sh deploy contracts/ReviewGuard.py
 cd frontend && npm install && npm run dev
 ```
+
+`tools/gl.sh` exists because a deploy or write without a fee **distribution**
+reverts on studio-dev with `FeeValueMustBeNonZero(1)` — `--fee-value` alone is
+not enough. Routing every transaction through it means that is not something to
+remember.
+
+## Four audits, and what each one can catch
+
+| | checks | catches |
+|---|---|---|
+| `test/test_logic.py` | 428 | rubric bugs, consensus forgeries, money invariants, fuzz |
+| `tools/audit.sh` | 81 | runner-format hazards, off-axis storage fields, a counter that moved before a revert |
+| `tools/audit_claims.mjs` | 41 | a sentence in the docs that the deployed contract no longer supports |
+| `tools/audit_site.mjs` | 26 | a UI flow that paints but does not work |
+
+The last two are the ones that keep finding things. `audit_claims` verifies
+every stored check recomputes and that `is_authentic` never disagrees with the
+level it reports. `audit_site` found that the compare page announced "a dead
+heat — both scored identically" for two products that tie on the overall
+*because* their platforms publish different dimensions.
 
 ---
 
