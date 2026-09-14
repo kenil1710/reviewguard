@@ -150,18 +150,15 @@ head("Result detail");
 }
 
 head("Compare");
-// Compare needs TWO checked records. On a freshly deployed contract that is
-// not a failure, it is an empty chain — and an audit that cannot tell those
-// apart teaches a reader to ignore its red.
-const a = "https://play.google.com/store/apps/details?id=com.whatsapp";
-const b = "https://apps.apple.com/us/app/whatsapp-messenger/id310633997";
-const both = await Promise.all(
-  [a, b].map(async (u) =>
-    (await (await fetch(`${BASE}/api/lookup?url=${encodeURIComponent(u)}`)).json())
-      ?.found,
-  ),
-);
-if (!both.every(Boolean)) {
+// The two URLs are taken from WHAT IS ON CHAIN rather than hardcoded. A fixed
+// pair skipped the whole section whenever one of those two happened not to be
+// checked — which is how a real round timing out turned into an audit that
+// silently stopped testing compare at all.
+const recent = await (await fetch(`${BASE}/api/recent`)).json().catch(() => null);
+const pair = (recent?.items ?? []).slice(0, 2);
+const a = pair[0]?.source_url;
+const b = pair[1]?.source_url;
+if (!a || !b) {
   console.log("  SKIP compare: fewer than two checked records on chain yet");
 } else {
   const page = await ctx.newPage();

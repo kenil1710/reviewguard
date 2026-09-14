@@ -1,12 +1,12 @@
 {
-  "captured_at": "2026-09-14T06:25:51.359Z",
+  "captured_at": "2026-09-14T07:46:10.335Z",
   "network": {
     "name": "GenLayer Studio Dev",
     "chain_id": 61997
   },
   "addresses": {
-    "ReviewGuard": "0x37B5C64586d7d214D3aA45aA5a0Fdd5cc5f34c30",
-    "MarketplaceConsumer": "0x0E4a16a697955d0001c64358B14C3AF156889822"
+    "ReviewGuard": "0xc5fdA37427Ba24E0A35B446cBEf7a2C5E7EE61b3",
+    "MarketplaceConsumer": "0x63Af3Ba8677FF2a09FfC39Fb09Eb93535f084B34"
   },
   "config": {
     "buckets": {
@@ -131,7 +131,7 @@
     },
     "quantisation_step": 5,
     "rate_limit_seconds": 300,
-    "rubric_version": "1.0.0",
+    "rubric_version": "1.0.1",
     "thresholds": {
       "authentic_min": 70,
       "suspicious_min": 40
@@ -167,59 +167,59 @@
     }
   },
   "stats": {
-    "authentic": 9,
+    "authentic": 8,
     "balance_wei": "0",
-    "conclusive_checks": 9,
-    "inconclusive": 1,
+    "conclusive_checks": 8,
+    "inconclusive": 0,
     "manipulated": 0,
     "manipulation_rate_pct": 0,
     "pages_by_platform": {
       "AMAZON": 2,
       "APP_STORE": 3,
-      "GOOGLE_PLAY": 5
+      "GOOGLE_PLAY": 3
     },
-    "pages_tracked": 10,
+    "pages_tracked": 8,
     "paused": false,
     "refunds_owed_wei": "0",
     "suspicious": 0,
-    "total_checked": 10,
+    "total_checked": 8,
     "total_fees_wei": "0",
-    "total_requests": "11"
+    "total_requests": "8"
   },
   "checks": [
     {
-      "available_weight": 20,
-      "check_id": 10,
-      "checked_at": 1789366976,
+      "available_weight": 65,
+      "check_id": 8,
+      "checked_at": 1789371761,
       "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
-      "content_hash": "570:0c8dbd0fc30b1af0",
-      "credibility_basis": "verified-purchase",
+      "content_hash": "497:4fbacb92b8d7975d",
+      "credibility_basis": "identity-shape",
       "evidence": {
-        "avg_rating_x10": 47,
-        "dated_reviews": 0,
-        "distinct_days": 0,
-        "distinct_names_pct": 0,
+        "avg_rating_x10": 48,
+        "dated_reviews": 4,
+        "distinct_days": 4,
+        "distinct_names_pct": 100,
         "dup_open_pct": 0,
         "has_photos": false,
         "has_response": false,
         "helpful_pct": null,
-        "helpful_total": 0,
-        "lexical_pct": 0,
-        "max_same_day": 0,
-        "median_chars": 0,
-        "page_chars": 14000,
+        "helpful_total": null,
+        "lexical_pct": 60,
+        "max_same_day": 1,
+        "median_chars": 1500,
+        "page_chars": 12500,
         "rating_histogram": {
-          "1": 3,
-          "2": 0,
-          "3": 3,
-          "4": 7,
-          "5": 87
+          "1": null,
+          "2": null,
+          "3": null,
+          "4": null,
+          "5": null
         },
-        "reviews_parsed": 0,
-        "reviews_section": false,
+        "reviews_parsed": 4,
+        "reviews_section": true,
         "short_pct": 0,
-        "span_days": 0,
-        "total_ratings": 57900,
+        "span_days": 1885,
+        "total_ratings": 42000000,
         "verified_pct": null,
         "weak_handle_pct": 0
       },
@@ -227,25 +227,95 @@
       "found": true,
       "labels": {
         "engagement_signals": "not published by this platform",
-        "rating_distribution": "slightly top-heavy",
-        "review_quality": "not published by this platform",
-        "reviewer_credibility": "not published by this platform",
-        "timing_pattern": "not published by this platform"
+        "rating_distribution": "not published by this platform",
+        "review_quality": "detailed and varied",
+        "reviewer_credibility": "mostly credible",
+        "timing_pattern": "naturally distributed"
       },
-      "overall": 0,
-      "platform": "AMAZON",
-      "rubric_version": "1.0.0",
+      "overall": 90,
+      "platform": "APP_STORE",
+      "rubric_version": "1.0.1",
       "scores": {
         "engagement_signals": null,
+        "rating_distribution": null,
+        "review_quality": 7,
+        "reviewer_credibility": 5,
+        "timing_pattern": 7
+      },
+      "seq": 1,
+      "source_url": "https://apps.apple.com/us/app/id324684580",
+      "title": "Spotify: Music and Podcasts",
+      "trust_level": "AUTHENTIC",
+      "unavailable_because": "platform",
+      "url_key": "APP_STORE:us:324684580",
+      "weights": {
+        "engagement_signals": 15,
+        "rating_distribution": 20,
+        "review_quality": 20,
+        "reviewer_credibility": 20,
+        "timing_pattern": 25
+      }
+    },
+    {
+      "available_weight": 100,
+      "check_id": 7,
+      "checked_at": 1789371388,
+      "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
+      "content_hash": "584:be5dda1991a7067b",
+      "credibility_basis": "verified-purchase",
+      "evidence": {
+        "avg_rating_x10": 47,
+        "dated_reviews": 13,
+        "distinct_days": 13,
+        "distinct_names_pct": 100,
+        "dup_open_pct": 0,
+        "has_photos": true,
+        "has_response": false,
+        "helpful_pct": 60,
+        "helpful_total": 2130,
+        "lexical_pct": 80,
+        "max_same_day": 1,
+        "median_chars": 2425,
+        "page_chars": 56000,
+        "rating_histogram": {
+          "1": 3,
+          "2": 0,
+          "3": 3,
+          "4": 7,
+          "5": 87
+        },
+        "reviews_parsed": 13,
+        "reviews_section": true,
+        "short_pct": 5,
+        "span_days": 1335,
+        "total_ratings": 57900,
+        "verified_pct": 100,
+        "weak_handle_pct": 0
+      },
+      "fee_paid_wei": "0",
+      "found": true,
+      "labels": {
+        "engagement_signals": "moderate",
+        "rating_distribution": "slightly top-heavy",
+        "review_quality": "detailed and varied",
+        "reviewer_credibility": "established reviewers",
+        "timing_pattern": "naturally distributed"
+      },
+      "overall": 85,
+      "platform": "AMAZON",
+      "rubric_version": "1.0.1",
+      "scores": {
+        "engagement_signals": 5,
         "rating_distribution": 4,
-        "review_quality": null,
-        "reviewer_credibility": null,
-        "timing_pattern": null
+        "review_quality": 7,
+        "reviewer_credibility": 7,
+        "timing_pattern": 7
       },
       "seq": 1,
       "source_url": "https://www.amazon.com/dp/B0BDHWDR12",
       "title": "Apple AirPods Pro (2nd Gen) Wireless Earbuds, Up to 2X More Active Noise Cancelling, Adaptive Transparency, Personalized",
-      "trust_level": "INCONCLUSIVE",
+      "trust_level": "AUTHENTIC",
+      "unavailable_because": "platform",
       "url_key": "AMAZON:amazon.com:B0BDHWDR12",
       "weights": {
         "engagement_signals": 15,
@@ -257,8 +327,8 @@
     },
     {
       "available_weight": 80,
-      "check_id": 9,
-      "checked_at": 1789366619,
+      "check_id": 6,
+      "checked_at": 1789371025,
       "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
       "content_hash": "513:e02aeb96641e263a",
       "credibility_basis": "identity-shape",
@@ -302,7 +372,7 @@
       },
       "overall": 85,
       "platform": "GOOGLE_PLAY",
-      "rubric_version": "1.0.0",
+      "rubric_version": "1.0.1",
       "scores": {
         "engagement_signals": 7,
         "rating_distribution": null,
@@ -314,6 +384,7 @@
       "source_url": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
       "title": "TikTok - Videos, Shop & LIVE",
       "trust_level": "AUTHENTIC",
+      "unavailable_because": "platform",
       "url_key": "GOOGLE_PLAY:com.zhiliaoapp.musically",
       "weights": {
         "engagement_signals": 15,
@@ -325,8 +396,8 @@
     },
     {
       "available_weight": 65,
-      "check_id": 8,
-      "checked_at": 1789366267,
+      "check_id": 5,
+      "checked_at": 1789370656,
       "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
       "content_hash": "499:e182b36b767a9c95",
       "credibility_basis": "identity-shape",
@@ -370,7 +441,7 @@
       },
       "overall": 80,
       "platform": "APP_STORE",
-      "rubric_version": "1.0.0",
+      "rubric_version": "1.0.1",
       "scores": {
         "engagement_signals": null,
         "rating_distribution": null,
@@ -382,6 +453,7 @@
       "source_url": "https://apps.apple.com/us/app/id835599320",
       "title": "TikTok - Videos, Shop & LIVE",
       "trust_level": "AUTHENTIC",
+      "unavailable_because": "platform",
       "url_key": "APP_STORE:us:835599320",
       "weights": {
         "engagement_signals": 15,
@@ -392,79 +464,11 @@
       }
     },
     {
-      "available_weight": 80,
-      "check_id": 7,
-      "checked_at": 1789365911,
-      "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
-      "content_hash": "492:5eeace22f34fc551",
-      "credibility_basis": "identity-shape",
-      "evidence": {
-        "avg_rating_x10": 40,
-        "dated_reviews": 3,
-        "distinct_days": 3,
-        "distinct_names_pct": 100,
-        "dup_open_pct": 0,
-        "has_photos": false,
-        "has_response": false,
-        "helpful_pct": 100,
-        "helpful_total": 33600,
-        "lexical_pct": 70,
-        "max_same_day": 1,
-        "median_chars": 475,
-        "page_chars": 5000,
-        "rating_histogram": {
-          "1": null,
-          "2": null,
-          "3": null,
-          "4": null,
-          "5": null
-        },
-        "reviews_parsed": 3,
-        "reviews_section": true,
-        "short_pct": 0,
-        "span_days": 185,
-        "total_ratings": 164000000,
-        "verified_pct": null,
-        "weak_handle_pct": 0
-      },
-      "fee_paid_wei": "0",
-      "found": true,
-      "labels": {
-        "engagement_signals": "high natural engagement",
-        "rating_distribution": "not published by this platform",
-        "review_quality": "detailed",
-        "reviewer_credibility": "mostly credible",
-        "timing_pattern": "well spread"
-      },
-      "overall": 85,
-      "platform": "GOOGLE_PLAY",
-      "rubric_version": "1.0.0",
-      "scores": {
-        "engagement_signals": 7,
-        "rating_distribution": null,
-        "review_quality": 6,
-        "reviewer_credibility": 5,
-        "timing_pattern": 6
-      },
-      "seq": 1,
-      "source_url": "https://play.google.com/store/apps/details?id=com.instagram.android",
-      "title": "Instagram",
-      "trust_level": "AUTHENTIC",
-      "url_key": "GOOGLE_PLAY:com.instagram.android",
-      "weights": {
-        "engagement_signals": 15,
-        "rating_distribution": 20,
-        "review_quality": 20,
-        "reviewer_credibility": 20,
-        "timing_pattern": 25
-      }
-    },
-    {
       "available_weight": 100,
-      "check_id": 6,
-      "checked_at": 1789365411,
+      "check_id": 4,
+      "checked_at": 1789369448,
       "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
-      "content_hash": "535:4c3d87e38320a146",
+      "content_hash": "535:c7bd7951628814d8",
       "credibility_basis": "verified-purchase",
       "evidence": {
         "avg_rating_x10": 47,
@@ -479,7 +483,7 @@
         "lexical_pct": 70,
         "max_same_day": 1,
         "median_chars": 2650,
-        "page_chars": 38500,
+        "page_chars": 39000,
         "rating_histogram": {
           "1": 1,
           "2": 0,
@@ -506,7 +510,7 @@
       },
       "overall": 80,
       "platform": "AMAZON",
-      "rubric_version": "1.0.0",
+      "rubric_version": "1.0.1",
       "scores": {
         "engagement_signals": 5,
         "rating_distribution": 5,
@@ -518,6 +522,7 @@
       "source_url": "https://www.amazon.com/dp/B07FZ8S74R",
       "title": "Echo Dot (3rd Gen, 2018 release) - Smart speaker with Alexa - Charcoal",
       "trust_level": "AUTHENTIC",
+      "unavailable_because": "platform",
       "url_key": "AMAZON:amazon.com:B07FZ8S74R",
       "weights": {
         "engagement_signals": 15,
@@ -529,8 +534,8 @@
     },
     {
       "available_weight": 65,
-      "check_id": 5,
-      "checked_at": 1789365043,
+      "check_id": 3,
+      "checked_at": 1789369079,
       "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
       "content_hash": "480:8a43ee106c3fae5c",
       "credibility_basis": "identity-shape",
@@ -574,7 +579,7 @@
       },
       "overall": 85,
       "platform": "APP_STORE",
-      "rubric_version": "1.0.0",
+      "rubric_version": "1.0.1",
       "scores": {
         "engagement_signals": null,
         "rating_distribution": null,
@@ -586,6 +591,7 @@
       "source_url": "https://apps.apple.com/us/app/id389801252",
       "title": "Instagram",
       "trust_level": "AUTHENTIC",
+      "unavailable_because": "platform",
       "url_key": "APP_STORE:us:389801252",
       "weights": {
         "engagement_signals": 15,
@@ -597,76 +603,8 @@
     },
     {
       "available_weight": 80,
-      "check_id": 4,
-      "checked_at": 1789364936,
-      "checker": "0x83efD4C7a7228d12EFe615D40C0335Fe64137E64",
-      "content_hash": "491:b10960fe09468bf7",
-      "credibility_basis": "identity-shape",
-      "evidence": {
-        "avg_rating_x10": 43,
-        "dated_reviews": 3,
-        "distinct_days": 3,
-        "distinct_names_pct": 100,
-        "dup_open_pct": 0,
-        "has_photos": false,
-        "has_response": false,
-        "helpful_pct": 100,
-        "helpful_total": 9040,
-        "lexical_pct": 75,
-        "max_same_day": 1,
-        "median_chars": 425,
-        "page_chars": 5000,
-        "rating_histogram": {
-          "1": null,
-          "2": null,
-          "3": null,
-          "4": null,
-          "5": null
-        },
-        "reviews_parsed": 3,
-        "reviews_section": true,
-        "short_pct": 0,
-        "span_days": 395,
-        "total_ratings": 14300000,
-        "verified_pct": null,
-        "weak_handle_pct": 35
-      },
-      "fee_paid_wei": "0",
-      "found": true,
-      "labels": {
-        "engagement_signals": "high natural engagement",
-        "rating_distribution": "not published by this platform",
-        "review_quality": "detailed",
-        "reviewer_credibility": "doubtful",
-        "timing_pattern": "naturally distributed"
-      },
-      "overall": 80,
-      "platform": "GOOGLE_PLAY",
-      "rubric_version": "1.0.0",
-      "scores": {
-        "engagement_signals": 7,
-        "rating_distribution": null,
-        "review_quality": 6,
-        "reviewer_credibility": 3,
-        "timing_pattern": 7
-      },
-      "seq": 1,
-      "source_url": "https://play.google.com/store/apps/details?id=com.netflix.mediaclient",
-      "title": "Netflix",
-      "trust_level": "AUTHENTIC",
-      "url_key": "GOOGLE_PLAY:com.netflix.mediaclient",
-      "weights": {
-        "engagement_signals": 15,
-        "rating_distribution": 20,
-        "review_quality": 20,
-        "reviewer_credibility": 20,
-        "timing_pattern": 25
-      }
-    },
-    {
-      "available_weight": 80,
-      "check_id": 3,
-      "checked_at": 1789364689,
+      "check_id": 2,
+      "checked_at": 1789368717,
       "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
       "content_hash": "505:a415e478e48f7b9d",
       "credibility_basis": "identity-shape",
@@ -710,7 +648,7 @@
       },
       "overall": 75,
       "platform": "GOOGLE_PLAY",
-      "rubric_version": "1.0.0",
+      "rubric_version": "1.0.1",
       "scores": {
         "engagement_signals": 7,
         "rating_distribution": null,
@@ -722,75 +660,8 @@
       "source_url": "https://play.google.com/store/apps/details?id=com.spotify.music",
       "title": "Spotify: Music and Podcasts",
       "trust_level": "AUTHENTIC",
+      "unavailable_because": "platform",
       "url_key": "GOOGLE_PLAY:com.spotify.music",
-      "weights": {
-        "engagement_signals": 15,
-        "rating_distribution": 20,
-        "review_quality": 20,
-        "reviewer_credibility": 20,
-        "timing_pattern": 25
-      }
-    },
-    {
-      "available_weight": 65,
-      "check_id": 2,
-      "checked_at": 1789364326,
-      "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
-      "content_hash": "489:677480ac03587044",
-      "credibility_basis": "identity-shape",
-      "evidence": {
-        "avg_rating_x10": 47,
-        "dated_reviews": 4,
-        "distinct_days": 4,
-        "distinct_names_pct": 100,
-        "dup_open_pct": 0,
-        "has_photos": false,
-        "has_response": false,
-        "helpful_pct": null,
-        "helpful_total": null,
-        "lexical_pct": 75,
-        "max_same_day": 1,
-        "median_chars": 1525,
-        "page_chars": 11500,
-        "rating_histogram": {
-          "1": null,
-          "2": null,
-          "3": null,
-          "4": null,
-          "5": null
-        },
-        "reviews_parsed": 4,
-        "reviews_section": true,
-        "short_pct": 0,
-        "span_days": 2000,
-        "total_ratings": 19000000,
-        "verified_pct": null,
-        "weak_handle_pct": 50
-      },
-      "fee_paid_wei": "0",
-      "found": true,
-      "labels": {
-        "engagement_signals": "not published by this platform",
-        "rating_distribution": "not published by this platform",
-        "review_quality": "detailed and varied",
-        "reviewer_credibility": "largely doubtful",
-        "timing_pattern": "naturally distributed"
-      },
-      "overall": 80,
-      "platform": "APP_STORE",
-      "rubric_version": "1.0.0",
-      "scores": {
-        "engagement_signals": null,
-        "rating_distribution": null,
-        "review_quality": 7,
-        "reviewer_credibility": 2,
-        "timing_pattern": 7
-      },
-      "seq": 1,
-      "source_url": "https://apps.apple.com/us/app/id310633997",
-      "title": "WhatsApp Messenger",
-      "trust_level": "AUTHENTIC",
-      "url_key": "APP_STORE:us:310633997",
       "weights": {
         "engagement_signals": 15,
         "rating_distribution": 20,
@@ -802,7 +673,7 @@
     {
       "available_weight": 80,
       "check_id": 1,
-      "checked_at": 1789363969,
+      "checked_at": 1789367512,
       "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
       "content_hash": "488:52345833f647793e",
       "credibility_basis": "identity-shape",
@@ -846,7 +717,7 @@
       },
       "overall": 80,
       "platform": "GOOGLE_PLAY",
-      "rubric_version": "1.0.0",
+      "rubric_version": "1.0.1",
       "scores": {
         "engagement_signals": 5,
         "rating_distribution": null,
@@ -858,6 +729,7 @@
       "source_url": "https://play.google.com/store/apps/details?id=com.whatsapp",
       "title": "WhatsApp Messenger",
       "trust_level": "AUTHENTIC",
+      "unavailable_because": "platform",
       "url_key": "GOOGLE_PLAY:com.whatsapp",
       "weights": {
         "engagement_signals": 15,
@@ -869,16 +741,6 @@
     }
   ],
   "verifications": [
-    {
-      "check_id": 10,
-      "verified": true,
-      "mismatches": []
-    },
-    {
-      "check_id": 9,
-      "verified": true,
-      "mismatches": []
-    },
     {
       "check_id": 8,
       "verified": true,
@@ -923,9 +785,15 @@
   "all_verified": true,
   "guards": [
     {
+      "url": "https://apps.apple.com/us/app/id324684580",
+      "is_authentic": true,
+      "trust_level": "AUTHENTIC",
+      "consistent": true
+    },
+    {
       "url": "https://www.amazon.com/dp/B0BDHWDR12",
-      "is_authentic": false,
-      "trust_level": "INCONCLUSIVE",
+      "is_authentic": true,
+      "trust_level": "AUTHENTIC",
       "consistent": true
     },
     {
@@ -936,12 +804,6 @@
     },
     {
       "url": "https://apps.apple.com/us/app/id835599320",
-      "is_authentic": true,
-      "trust_level": "AUTHENTIC",
-      "consistent": true
-    },
-    {
-      "url": "https://play.google.com/store/apps/details?id=com.instagram.android",
       "is_authentic": true,
       "trust_level": "AUTHENTIC",
       "consistent": true
@@ -959,19 +821,7 @@
       "consistent": true
     },
     {
-      "url": "https://play.google.com/store/apps/details?id=com.netflix.mediaclient",
-      "is_authentic": true,
-      "trust_level": "AUTHENTIC",
-      "consistent": true
-    },
-    {
       "url": "https://play.google.com/store/apps/details?id=com.spotify.music",
-      "is_authentic": true,
-      "trust_level": "AUTHENTIC",
-      "consistent": true
-    },
-    {
-      "url": "https://apps.apple.com/us/app/id310633997",
       "is_authentic": true,
       "trust_level": "AUTHENTIC",
       "consistent": true
@@ -991,7 +841,7 @@
       "max_check_age_s": 2592000,
       "max_listings": 200,
       "min_score": 70,
-      "oracle": "0x37B5C64586d7d214D3aA45aA5a0Fdd5cc5f34c30",
+      "oracle": "0xc5fdA37427Ba24E0A35B446cBEf7a2C5E7EE61b3",
       "owner": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
       "policy_note": "AUTHENTIC only. SUSPICIOUS, MANIPULATED, INCONCLUSIVE and never-checked are all refused, and the deposit is refunded in every case.",
       "refunds_owed_wei": "0",
@@ -1004,7 +854,7 @@
       "items": [
         {
           "check_id": 1,
-          "listed_at": 1789364059,
+          "listed_at": 1789371669,
           "overall": 80,
           "platform": "GOOGLE_PLAY",
           "price_wei": "1000000",
@@ -1018,12 +868,12 @@
       "count": 1,
       "items": [
         {
-          "at": 1789364074,
+          "at": 1789371682,
           "overall": 0,
           "reason": "ReviewGuard has never checked that page: never checked",
           "refunded_wei": "0",
           "trust_level": "INCONCLUSIVE",
-          "url": "https://www.amazon.com/dp/B07FZ8S74R",
+          "url": "https://www.amazon.com/dp/B0CHX1W1XY",
           "who": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8"
         }
       ]
