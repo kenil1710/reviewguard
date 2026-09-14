@@ -14,7 +14,7 @@ ordinals and the evidence behind them — none of which any single party can mov
 | **MarketplaceConsumer** | [`0x0E4a16a697955d0001c64358B14C3AF156889822`](https://explorer-studio-dev.genlayer.com/address/0x0E4a16a697955d0001c64358B14C3AF156889822) |
 | **Rubric** | `1.0.0` · fee `0` |
 | **Offline tests** | 428, stdlib only |
-| **Audit** | 428 tests + 81 + 41 + 26 mechanical checks |
+| **Audit** | 428 tests + 85 + 41 + 26 mechanical checks |
 
 ---
 
@@ -170,7 +170,7 @@ docs/
   evidence.json             live on-chain state
 tools/
   gl.sh                     fee-aware deploy and write
-  audit.sh                  81 mechanical checks of the source
+  audit.sh                  85 mechanical checks of the source
   audit_claims.mjs          41 claims verified against the live chain
   audit_site.mjs            26 UI flows driven in a real browser
   seed.sh                   real checks against studio-dev
@@ -181,7 +181,7 @@ frontend/                   Next.js 16 + Tailwind 4
 
 ```bash
 python3 test/test_logic.py       # 428 tests, no network, no genlayer install
-bash tools/audit.sh              # 81 mechanical checks of the source
+bash tools/audit.sh              # 85 mechanical checks of the source
 
 # these three read the live chain and the live site
 node tools/audit_claims.mjs      # 41 claims, verified against the contract
@@ -202,7 +202,7 @@ remember.
 | | checks | catches |
 |---|---|---|
 | `test/test_logic.py` | 428 | rubric bugs, consensus forgeries, money invariants, fuzz |
-| `tools/audit.sh` | 81 | runner-format hazards, off-axis storage fields, a counter that moved before a revert |
+| `tools/audit.sh` | 85 | runner-format hazards, off-axis storage fields, a counter that moved before a revert |
 | `tools/audit_claims.mjs` | 41 | a sentence in the docs that the deployed contract no longer supports |
 | `tools/audit_site.mjs` | 26 | a UI flow that paints but does not work |
 

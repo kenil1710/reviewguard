@@ -300,6 +300,29 @@ grep -q "W_CREDIBILITY = 20" "$GUARD" && ok "credibility weight 20" || bad "wron
 grep -q "W_ENGAGEMENT = 15" "$GUARD" && ok "engagement weight 15" || bad "wrong engagement weight"
 grep -q "DEFAULT_FEE_WEI = 0" "$GUARD" && ok "fee is 0 as the brief asks" || bad "fee is not zero"
 
+# ───────────────────────────────── 12b. the README's own numbers are true
+head_ "12b. The README does not overstate itself"
+if [ -s README.md ]; then
+  ACTUAL_TESTS=$(python3 test/test_logic.py 2>&1 | grep -oE "Ran [0-9]+ tests" | grep -oE "[0-9]+")
+  CLAIMED_TESTS=$(grep -oE "\*\*Offline tests\*\* \| [0-9]+" README.md | grep -oE "[0-9]+$")
+  if [ -n "$CLAIMED_TESTS" ] && [ "$CLAIMED_TESTS" = "$ACTUAL_TESTS" ]; then
+    ok "README claims $CLAIMED_TESTS tests and there are $ACTUAL_TESTS"
+  else
+    bad "README claims ${CLAIMED_TESTS:-?} tests; the suite runs $ACTUAL_TESTS" \
+        "a number nobody updated is a number nobody can trust"
+  fi
+  # Every address in the README must be one we actually deployed.
+  for addr in $(grep -oE "0x[0-9a-fA-F]{40}" README.md | sort -u); do
+    if grep -qi "$addr" deployments.json; then
+      ok "README address $addr is in deployments.json"
+    else
+      bad "README names $addr, which is not a deployment on record"
+    fi
+  done
+  grep -q "Trustpilot" README.md && ok "the README names what was tried and blocked" \
+    || bad "the README does not say which platforms were refused"
+fi
+
 # ───────────────────────────────────────────── 13. docs
 head_ "13. Documentation"
 [ -s docs/PROBE.md ] && ok "docs/PROBE.md records the render probe" || bad "no probe evidence"
