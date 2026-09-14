@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-09-14T06:04:38.695Z",
+  "captured_at": "2026-09-14T06:14:24.616Z",
   "network": {
     "name": "GenLayer Studio Dev",
     "chain_id": 61997
@@ -167,26 +167,162 @@
     }
   },
   "stats": {
-    "authentic": 6,
+    "authentic": 8,
     "balance_wei": "0",
-    "conclusive_checks": 6,
+    "conclusive_checks": 8,
     "inconclusive": 0,
     "manipulated": 0,
     "manipulation_rate_pct": 0,
     "pages_by_platform": {
       "AMAZON": 1,
-      "APP_STORE": 2,
-      "GOOGLE_PLAY": 3
+      "APP_STORE": 3,
+      "GOOGLE_PLAY": 4
     },
-    "pages_tracked": 6,
+    "pages_tracked": 8,
     "paused": false,
     "refunds_owed_wei": "0",
     "suspicious": 0,
-    "total_checked": 6,
+    "total_checked": 8,
     "total_fees_wei": "0",
-    "total_requests": "6"
+    "total_requests": "8"
   },
   "checks": [
+    {
+      "available_weight": 65,
+      "check_id": 8,
+      "checked_at": 1789366267,
+      "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
+      "content_hash": "499:e182b36b767a9c95",
+      "credibility_basis": "identity-shape",
+      "evidence": {
+        "avg_rating_x10": 47,
+        "dated_reviews": 3,
+        "distinct_days": 3,
+        "distinct_names_pct": 100,
+        "dup_open_pct": 0,
+        "has_photos": false,
+        "has_response": false,
+        "helpful_pct": null,
+        "helpful_total": null,
+        "lexical_pct": 70,
+        "max_same_day": 1,
+        "median_chars": 1475,
+        "page_chars": 13000,
+        "rating_histogram": {
+          "1": null,
+          "2": null,
+          "3": null,
+          "4": null,
+          "5": null
+        },
+        "reviews_parsed": 3,
+        "reviews_section": true,
+        "short_pct": 0,
+        "span_days": 1925,
+        "total_ratings": 18000000,
+        "verified_pct": null,
+        "weak_handle_pct": 35
+      },
+      "fee_paid_wei": "0",
+      "found": true,
+      "labels": {
+        "engagement_signals": "not published by this platform",
+        "rating_distribution": "not published by this platform",
+        "review_quality": "detailed and varied",
+        "reviewer_credibility": "doubtful",
+        "timing_pattern": "naturally distributed"
+      },
+      "overall": 80,
+      "platform": "APP_STORE",
+      "rubric_version": "1.0.0",
+      "scores": {
+        "engagement_signals": null,
+        "rating_distribution": null,
+        "review_quality": 7,
+        "reviewer_credibility": 3,
+        "timing_pattern": 7
+      },
+      "seq": 1,
+      "source_url": "https://apps.apple.com/us/app/id835599320",
+      "title": "TikTok - Videos, Shop & LIVE",
+      "trust_level": "AUTHENTIC",
+      "url_key": "APP_STORE:us:835599320",
+      "weights": {
+        "engagement_signals": 15,
+        "rating_distribution": 20,
+        "review_quality": 20,
+        "reviewer_credibility": 20,
+        "timing_pattern": 25
+      }
+    },
+    {
+      "available_weight": 80,
+      "check_id": 7,
+      "checked_at": 1789365911,
+      "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
+      "content_hash": "492:5eeace22f34fc551",
+      "credibility_basis": "identity-shape",
+      "evidence": {
+        "avg_rating_x10": 40,
+        "dated_reviews": 3,
+        "distinct_days": 3,
+        "distinct_names_pct": 100,
+        "dup_open_pct": 0,
+        "has_photos": false,
+        "has_response": false,
+        "helpful_pct": 100,
+        "helpful_total": 33600,
+        "lexical_pct": 70,
+        "max_same_day": 1,
+        "median_chars": 475,
+        "page_chars": 5000,
+        "rating_histogram": {
+          "1": null,
+          "2": null,
+          "3": null,
+          "4": null,
+          "5": null
+        },
+        "reviews_parsed": 3,
+        "reviews_section": true,
+        "short_pct": 0,
+        "span_days": 185,
+        "total_ratings": 164000000,
+        "verified_pct": null,
+        "weak_handle_pct": 0
+      },
+      "fee_paid_wei": "0",
+      "found": true,
+      "labels": {
+        "engagement_signals": "high natural engagement",
+        "rating_distribution": "not published by this platform",
+        "review_quality": "detailed",
+        "reviewer_credibility": "mostly credible",
+        "timing_pattern": "well spread"
+      },
+      "overall": 85,
+      "platform": "GOOGLE_PLAY",
+      "rubric_version": "1.0.0",
+      "scores": {
+        "engagement_signals": 7,
+        "rating_distribution": null,
+        "review_quality": 6,
+        "reviewer_credibility": 5,
+        "timing_pattern": 6
+      },
+      "seq": 1,
+      "source_url": "https://play.google.com/store/apps/details?id=com.instagram.android",
+      "title": "Instagram",
+      "trust_level": "AUTHENTIC",
+      "url_key": "GOOGLE_PLAY:com.instagram.android",
+      "weights": {
+        "engagement_signals": 15,
+        "rating_distribution": 20,
+        "review_quality": 20,
+        "reviewer_credibility": 20,
+        "timing_pattern": 25
+      }
+    },
     {
       "available_weight": 100,
       "check_id": 6,
@@ -598,6 +734,16 @@
   ],
   "verifications": [
     {
+      "check_id": 8,
+      "verified": true,
+      "mismatches": []
+    },
+    {
+      "check_id": 7,
+      "verified": true,
+      "mismatches": []
+    },
+    {
       "check_id": 6,
       "verified": true,
       "mismatches": []
@@ -630,6 +776,18 @@
   ],
   "all_verified": true,
   "guards": [
+    {
+      "url": "https://apps.apple.com/us/app/id835599320",
+      "is_authentic": true,
+      "trust_level": "AUTHENTIC",
+      "consistent": true
+    },
+    {
+      "url": "https://play.google.com/store/apps/details?id=com.instagram.android",
+      "is_authentic": true,
+      "trust_level": "AUTHENTIC",
+      "consistent": true
+    },
     {
       "url": "https://www.amazon.com/dp/B07FZ8S74R",
       "is_authentic": true,
