@@ -141,20 +141,46 @@ head("Compare");
   const page = await ctx.newPage();
   await page.goto(BASE + "/compare", { waitUntil: "networkidle" });
 
-  const urls = (await (await fetch(`${BASE}/api/detect?url=x`)).json()) && null;
   const a = "https://play.google.com/store/apps/details?id=com.whatsapp";
   const b = "https://apps.apple.com/us/app/whatsapp-messenger/id310633997";
 
   const inputs = page.locator('input[placeholder*="checked product URL"]');
+
+  // Wait for the CONDITION, not for a guess at how long the RPC takes. A fixed
+  // sleep here passed on a fast minute and failed on a slow one, which makes
+  // the audit a coin toss rather than a check.
+  const settle = async (label) => {
+    try {
+      await page.waitForFunction(
+        (want) => document.body.innerText.includes(want),
+        "reviews read",
+        { timeout: 45_000 },
+      );
+      return true;
+    } catch {
+      bad(`compare: ${label} never loaded`);
+      return false;
+    }
+  };
+
   await inputs.nth(0).fill(a);
   await page.getByRole("button", { name: "Load" }).nth(0).click();
-  await page.waitForTimeout(4000);
+  await settle("product A");
+
   await inputs.nth(1).fill(b);
   await page.getByRole("button", { name: "Load" }).nth(1).click();
-  await page.waitForTimeout(5000);
+  try {
+    await page.waitForFunction(
+      () => /more authentic|same overall score|cannot be ranked/i.test(document.body.innerText),
+      undefined,
+      { timeout: 45_000 },
+    );
+  } catch {
+    /* the assertion below reports it */
+  }
 
   const body = await page.locator("body").innerText();
-  /more authentic|dead heat|cannot be ranked/i.test(body)
+  /more authentic|same overall score|cannot be ranked/i.test(body)
     ? ok("two loaded records produce a verdict")
     : bad("compare produced no verdict", body.slice(0, 240));
   body.includes("Timing pattern")

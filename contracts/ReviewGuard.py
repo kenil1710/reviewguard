@@ -1037,7 +1037,6 @@ def _parse_gplay(text: str, today_day: int) -> dict:
 	for i in range(len(rows)):
 		r = rows[i]
 		if r.startswith("google_logo"):
-			k = _prev_nonempty(rows, len(rows))
 			for j in range(i + 1, min(len(rows), i + 14)):
 				cand = rows[j]
 				if cand in ("Games", "Apps", "Movies & TV", "Books", "Kids",
@@ -1436,7 +1435,9 @@ def _dim_timing(f: dict, dims: dict) -> int:
 
 	Needs DATES, not reviews: a page whose reviews all rendered without a
 	parseable date cannot be measured on this axis and says so."""
-	n = _as_int(f.get("reviews_parsed"), 0)
+	# Gated on DATED reviews, not on parsed ones. A page can render ten reviews
+	# and no parseable dates, and timing is exactly the axis that cannot be
+	# measured without them.
 	dated = _as_int(f.get("dated_reviews"), 0)
 	if not dims["timing"] or dated < MIN_REVIEWS:
 		return UNAVAIL
