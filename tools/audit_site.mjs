@@ -54,21 +54,34 @@ head("Check");
   const page = await ctx.newPage();
   await page.goto(BASE + "/check", { waitUntil: "networkidle" });
 
+  // Waiting for the CONDITION rather than for a guess. Detection is a debounce
+  // plus a serverless round trip, and a cold function takes longer than a warm
+  // one — a fixed sleep here made the audit pass or fail on how recently the
+  // site had been visited.
+  const awaitText = async (re, label) => {
+    try {
+      await page.waitForFunction(
+        (src) => new RegExp(src, "i").test(document.body.innerText),
+        re.source,
+        { timeout: 30_000 },
+      );
+      return true;
+    } catch {
+      bad(label);
+      return false;
+    }
+  };
+
   await page.fill("#url", "https://www.amazon.com/dp/B07FZ8S74R");
-  await page.waitForTimeout(1800);
-  const preview = await page.locator("text=Amazon detected").count();
-  preview > 0
-    ? ok("a valid URL auto-detects its platform")
-    : bad("platform detection did not fire");
+  (await awaitText(/Amazon detected/, "platform detection did not fire")) &&
+    ok("a valid URL auto-detects its platform");
   (await page.getByText("verified-purchase").count()) > 0
     ? ok("the preview names the credibility basis")
     : bad("credibility basis missing from the preview");
 
   await page.fill("#url", "https://www.trustpilot.com/review/amazon.com");
-  await page.waitForTimeout(1800);
-  (await page.getByText(/cannot read that page/i).count()) > 0
-    ? ok("a blocked platform is refused in the UI, with a reason")
-    : bad("Trustpilot was not refused in the UI");
+  (await awaitText(/cannot read that page/, "Trustpilot was not refused in the UI")) &&
+    ok("a blocked platform is refused in the UI, with a reason");
   const disabled = await page
     .getByRole("button", { name: /check reviews/i })
     .isDisabled();
@@ -137,12 +150,22 @@ head("Result detail");
 }
 
 head("Compare");
-{
+// Compare needs TWO checked records. On a freshly deployed contract that is
+// not a failure, it is an empty chain — and an audit that cannot tell those
+// apart teaches a reader to ignore its red.
+const a = "https://play.google.com/store/apps/details?id=com.whatsapp";
+const b = "https://apps.apple.com/us/app/whatsapp-messenger/id310633997";
+const both = await Promise.all(
+  [a, b].map(async (u) =>
+    (await (await fetch(`${BASE}/api/lookup?url=${encodeURIComponent(u)}`)).json())
+      ?.found,
+  ),
+);
+if (!both.every(Boolean)) {
+  console.log("  SKIP compare: fewer than two checked records on chain yet");
+} else {
   const page = await ctx.newPage();
   await page.goto(BASE + "/compare", { waitUntil: "networkidle" });
-
-  const a = "https://play.google.com/store/apps/details?id=com.whatsapp";
-  const b = "https://apps.apple.com/us/app/whatsapp-messenger/id310633997";
 
   const inputs = page.locator('input[placeholder*="checked product URL"]');
 
