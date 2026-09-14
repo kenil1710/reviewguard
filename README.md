@@ -10,11 +10,11 @@ ordinals and the evidence behind them — none of which any single party can mov
 | | |
 |---|---|
 | **Network** | GenLayer Studio Dev (chain `61997`) |
-| **ReviewGuard** | [`0xc5fdA37427Ba24E0A35B446cBEf7a2C5E7EE61b3`](https://explorer-studio-dev.genlayer.com/address/0xc5fdA37427Ba24E0A35B446cBEf7a2C5E7EE61b3) |
-| **MarketplaceConsumer** | [`0x63Af3Ba8677FF2a09FfC39Fb09Eb93535f084B34`](https://explorer-studio-dev.genlayer.com/address/0x63Af3Ba8677FF2a09FfC39Fb09Eb93535f084B34) |
+| **ReviewGuard** | [`0xA548BfAcA16765E9910F3aE7537fAA2B3064C12B`](https://explorer-studio-dev.genlayer.com/address/0xA548BfAcA16765E9910F3aE7537fAA2B3064C12B) |
+| **MarketplaceConsumer** | [`0x71131eBe691998BCBc8F572fAab07661299426ce`](https://explorer-studio-dev.genlayer.com/address/0x71131eBe691998BCBc8F572fAab07661299426ce) |
 | **Rubric** | `1.0.0` · fee `0` |
-| **Offline tests** | 435, stdlib only |
-| **Audit** | 435 tests + 85 + 42 + 26 mechanical checks |
+| **Offline tests** | 448, stdlib only |
+| **Audit** | 448 tests + 96 + 42 + 26 + 11 mechanical checks |
 
 ---
 
@@ -162,7 +162,7 @@ contracts/
   _render_probe.py          throwaway: which platforms can be read
   _wait_probe.py            throwaway: does a longer wait help? (no)
 test/
-  test_logic.py             435 offline tests, stdlib only
+  test_logic.py             448 offline tests, stdlib only
   harness.py                the v0.6 runtime stub
   fixtures/*.txt            real rendered pages, pulled off studio-dev
 docs/
@@ -170,9 +170,10 @@ docs/
   evidence.json             live on-chain state
 tools/
   gl.sh                     fee-aware deploy and write
-  audit.sh                  85 mechanical checks of the source
+  audit.sh                  96 mechanical checks of the source
   audit_claims.mjs          42 claims verified against the live chain
   audit_site.mjs            26 UI flows driven in a real browser
+  audit_persistence.mjs     11 checks that a check survives navigation
   seed.sh                   real checks against studio-dev
 frontend/                   Next.js 16 + Tailwind 4
 ```
@@ -180,12 +181,13 @@ frontend/                   Next.js 16 + Tailwind 4
 ## Running it
 
 ```bash
-python3 test/test_logic.py       # 435 tests, no network, no genlayer install
-bash tools/audit.sh              # 85 mechanical checks of the source
+python3 test/test_logic.py       # 448 tests, no network, no genlayer install
+bash tools/audit.sh              # 96 mechanical checks of the source
 
 # these three read the live chain and the live site
 node tools/audit_claims.mjs      # 42 claims, verified against the contract
 node tools/audit_site.mjs        # 26 UI flows, driven in a real browser
+node tools/audit_persistence.mjs # 11 checks that a check survives navigation
 node tools/evidence.mjs          # regenerate docs/evidence.json
 
 ./tools/gl.sh deploy contracts/ReviewGuard.py
@@ -201,10 +203,11 @@ remember.
 
 | | checks | catches |
 |---|---|---|
-| `test/test_logic.py` | 435 | rubric bugs, consensus forgeries, money invariants, fuzz |
-| `tools/audit.sh` | 85 | runner-format hazards, off-axis storage fields, a counter that moved before a revert |
+| `test/test_logic.py` | 448 | rubric bugs, consensus forgeries, money invariants, fuzz |
+| `tools/audit.sh` | 96 | runner-format hazards, off-axis storage fields, a counter that moved before a revert |
 | `tools/audit_claims.mjs` | 42 | a sentence in the docs that the deployed contract no longer supports |
 | `tools/audit_site.mjs` | 26 | a UI flow that paints but does not work |
+| `tools/audit_persistence.mjs` | 11 | a result lost when the visitor navigates away mid-check |
 
 The last two are the ones that keep finding things. `audit_claims` verifies
 every stored check recomputes and that `is_authentic` never disagrees with the
@@ -213,6 +216,21 @@ heat — both scored identically" for two products that tie on the overall
 *because* their platforms publish different dimensions.
 
 ---
+
+## A check survives you leaving the page
+
+A round takes 30-90 seconds and people do not sit still for it. The submitted
+URL is written to storage **before the request goes out** — the failure being
+fixed is precisely the one where the answer arrives while nobody is listening.
+Come back to `/check` and it asks the contract whether that URL has a record
+yet: if it does you land on it, if it does not you are told it is still running.
+
+The wait itself says *"Stay on this page — analysis takes 30-90 seconds"*, and
+then says that leaving is survivable anyway. On success you get *"Analysis
+complete! Redirecting to results…"* before the navigation, so nobody is
+teleported mid-spinner. `tools/audit_persistence.mjs` drives all of it in a real
+browser, including an expired marker, and a private window where `localStorage`
+throws.
 
 ## What this is not
 

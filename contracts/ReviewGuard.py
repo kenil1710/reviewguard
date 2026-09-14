@@ -70,7 +70,7 @@ import typing
 #
 # str.replace() is rejected by the runner; slice around find() instead.
 
-RUBRIC_VERSION = "1.0.1"
+RUBRIC_VERSION = "1.0.2"
 
 # --- economics. The fee defaults to ZERO: this is a public good on a testnet
 # and nobody should pay to ask whether a product's reviews are real. The
@@ -766,6 +766,56 @@ def _source_url(url_key: str) -> str:
 	return ""
 
 
+# Characters a third-party page must never get into storage. There is no model
+# call anywhere in this contract, so there is no prompt to inject — but the
+# product TITLE is page-controlled, is stored on chain, and is rendered on a
+# page that makes a claim about somebody's product. These classes let that
+# string lie about itself:
+#
+#   bidi overrides      U+202A-U+202E, U+2066-U+2069 reverse rendered order, so
+#                       a title can be made to read as something it is not.
+#   zero-width          U+200B-U+200F, U+FEFF are invisible; they pad a title to
+#                       look distinct from an identical one, and hide content.
+#   control characters  below U+0020 and U+007F. NUL and friends truncate or
+#                       corrupt in whatever reads the record next.
+#
+# Markup is deliberately NOT stripped: `<` and `>` occur in real product names,
+# the front end escapes them, and a stripper would mangle honest titles to
+# defend against something that is not a threat here.
+
+
+def _clean_text(raw: typing.Any, cap: int) -> str:
+	"""A third-party string, safe to store and safe to render.
+
+	Applied inside the PARSERS, so the cleaned value is what every validator
+	compares and what the content hash covers. Cleaning after consensus would
+	mean the agreed string and the stored string were different things."""
+	text = str(raw)
+	out = ""
+	for ch in text:
+		o = ord(ch)
+		if o < 32 or o == 127:
+			out += " "
+			continue
+		if 0x200B <= o <= 0x200F or 0x202A <= o <= 0x202E:
+			continue
+		if 0x2066 <= o <= 0x2069 or o == 0xFEFF:
+			continue
+		out += ch
+	# Collapse whitespace runs so a title cannot be padded into looking unique.
+	flat = ""
+	space = False
+	for ch in out:
+		if ch == " ":
+			if not space and flat != "":
+				flat += " "
+			space = True
+		else:
+			flat += ch
+			space = False
+	return flat.strip()[:cap]
+
+
 def _render_page(url: str) -> str:
 	"""The rendered text of a review page, or "" if it could not be fetched.
 
@@ -886,7 +936,7 @@ def _parse_amazon(text: str, today_day: int) -> dict:
 				j -= 1
 				continue
 			if len(cand) >= 8:
-				out["title"] = _short(cand, MAX_TITLE)
+				out["title"] = _clean_text(cand, MAX_TITLE)
 			break
 
 	head = _find_line(rows, "Customer reviews", 0)
@@ -1042,7 +1092,7 @@ def _parse_gplay(text: str, today_day: int) -> dict:
 				if cand in ("Games", "Apps", "Movies & TV", "Books", "Kids",
 						"Gift Cards", "search", "help_outline", ""):
 					continue
-				out["title"] = _short(cand, MAX_TITLE)
+				out["title"] = _clean_text(cand, MAX_TITLE)
 				break
 			break
 
@@ -1136,7 +1186,7 @@ def _parse_appstore(text: str, today_day: int) -> dict:
 			if rows[k] == "iPhone":
 				seen_iphone = True
 		if seen_iphone:
-			out["title"] = _short(rows[i + 1], MAX_TITLE)
+			out["title"] = _clean_text(rows[i + 1], MAX_TITLE)
 			break
 
 	if head < 0:
@@ -1942,7 +1992,7 @@ def _collect(url_key: str, fetch_url: str, platform: str, now_day: int) -> dict:
 		"ok": True,
 		"url_key": str(url_key),
 		"platform": str(platform),
-		"title": _short(str(parsed.get("title") or ""), MAX_TITLE),
+		"title": _clean_text(parsed.get("title") or "", MAX_TITLE),
 		"features": feats,
 		"scores": scored["scores"],
 		"overall": scored["overall"],

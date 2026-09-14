@@ -5,27 +5,27 @@
       "chain_id": 61997,
       "explorer": "https://explorer-studio-dev.genlayer.com/",
       "ReviewGuard": {
-        "address": "0xc5fdA37427Ba24E0A35B446cBEf7a2C5E7EE61b3",
+        "address": "0xA548BfAcA16765E9910F3aE7537fAA2B3064C12B",
         "deploy_tx": "0x704707eb8aa1575bc8726bf2bb5d246de992fd89c20ebecef751985e1d2fe674",
         "owner": "0xc70ff4c06aecb796ed712029ee548834764c9fe8",
-        "rubric_version": "1.0.1",
+        "rubric_version": "1.0.2",
         "fee_wei": "0",
-        "deployed_at": "2026-09-14T13:55:00Z",
+        "deployed_at": "2026-09-14T15:05:00Z",
         "supersedes": {
-          "address": "0x37B5C64586d7d214D3aA45aA5a0Fdd5cc5f34c30",
-          "rubric_version": "1.0.0",
-          "why": "1.0.0 labelled every unavailable dimension 'not published by this platform'. That is true of Google Play's star histogram and false of an Amazon page that arrived without its review list \u2014 Amazon publishes all five dimensions. 1.0.1 tells the two apart and carries `unavailable_because`."
+          "address": "0xc5fdA37427Ba24E0A35B446cBEf7a2C5E7EE61b3",
+          "rubric_version": "1.0.1",
+          "why": "1.0.1 stored the page-controlled product title verbatim. Bidi overrides (U+202E), zero-width characters and control bytes reached storage intact, so a hostile listing could make its stored title render as something it is not \u2014 on a page that makes a claim about that seller. 1.0.2 strips those classes inside the parsers, so the cleaned value is what validators compare and what the content hash covers. Markup is kept as literal text: angle brackets occur in real product names and the front end escapes them."
         }
       },
       "MarketplaceConsumer": {
-        "address": "0x63Af3Ba8677FF2a09FfC39Fb09Eb93535f084B34",
+        "address": "0x71131eBe691998BCBc8F572fAab07661299426ce",
         "deploy_tx": "0x8a11f44f98cd6014590e4ab6192717403d4a5557858f7260c6da6753460211e2",
-        "oracle": "0xc5fdA37427Ba24E0A35B446cBEf7a2C5E7EE61b3",
+        "oracle": "0xA548BfAcA16765E9910F3aE7537fAA2B3064C12B",
         "min_score": 70,
         "max_check_age_s": 2592000,
-        "deployed_at": "2026-09-14T13:57:00Z",
+        "deployed_at": "2026-09-14T15:07:00Z",
         "supersedes": {
-          "address": "0x0E4a16a697955d0001c64358B14C3AF156889822"
+          "address": "0x63Af3Ba8677FF2a09FfC39Fb09Eb93535f084B34"
         }
       },
       "probes": {

@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Search, Loader2, AlertTriangle, ExternalLink, CheckCircle2, Info,
-  ShoppingCart, Play, Apple, Clock,
+  ShoppingCart, Play, Apple, Clock, PauseCircle, ArrowRight,
 } from "lucide-react";
-import type { Detection, Platform } from "@/lib/types";
+import type { Detection, Platform, CheckResult } from "@/lib/types";
 import { PLATFORM_LABEL } from "@/lib/format";
+import { rememberPending, readPending, forgetPending } from "@/lib/pending";
 
 const SUPPORTED: { key: Platform; Icon: typeof ShoppingCart; hint: string }[] = [
   { key: "AMAZON", Icon: ShoppingCart, hint: "amazon.com/dp/B07FZ8S74R" },
@@ -22,7 +23,14 @@ const PLATFORM_ICON: Record<Platform, typeof ShoppingCart> = {
   APP_STORE: Apple,
 };
 
-type Phase = "idle" | "detecting" | "submitting" | "waiting" | "done" | "error";
+type Phase =
+  | "idle"
+  | "detecting"
+  | "submitting"
+  | "waiting"
+  | "done"
+  | "error"
+  | "recovering";
 
 export function CheckForm({ examples }: { examples: string[] }) {
   const router = useRouter();
@@ -37,7 +45,53 @@ export function CheckForm({ examples }: { examples: string[] }) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
+  const [resumed, setResumed] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  /**
+   * Recover a check the visitor started and then navigated away from.
+   *
+   * A round takes 30-90 seconds and people do not sit still for it. The URL
+   * was written to storage before the request went out, so on the way back in
+   * we ask the contract whether it has a record yet: if it does, the visitor
+   * lands on their result; if it does not, they are told it is still running
+   * rather than shown an empty form.
+   */
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const pending = readPending();
+      if (!pending || !alive) return;
+      setPhase("recovering");
+      setResumed(pending.url);
+      for (let i = 0; i < 40 && alive; i++) {
+        try {
+          const res = await fetch(
+            `/api/lookup?url=${encodeURIComponent(pending.url)}`,
+          );
+          const rec = (await res.json()) as CheckResult;
+          if (!alive) return;
+          if (rec && "found" in rec && rec.found) {
+            forgetPending();
+            setPhase("done");
+            router.push(`/result/${rec.check_id}`);
+            return;
+          }
+        } catch {
+          /* a bad minute on the RPC is not a finished check */
+        }
+        await new Promise((r) => setTimeout(r, 5000));
+      }
+      if (!alive) return;
+      // It never arrived. Clear it rather than leaving a permanent banner.
+      forgetPending();
+      setPhase("idle");
+      setResumed(null);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [router]);
 
   /** Detection is debounced and runs against the SAME contract view the write
    *  path uses. A preview that disagreed with the submission would be worse
@@ -88,6 +142,9 @@ export function CheckForm({ examples }: { examples: string[] }) {
     setError(null);
     setPhase("submitting");
     setElapsed(0);
+    // Written down BEFORE the request goes out. The failure being fixed is the
+    // one where the answer arrives while nobody is listening.
+    rememberPending(trimmed);
     timer.current = setInterval(() => setElapsed((e) => e + 1), 1000);
     try {
       const res = await fetch("/api/check", {
@@ -105,20 +162,27 @@ export function CheckForm({ examples }: { examples: string[] }) {
       };
       if (timer.current) clearInterval(timer.current);
       if (!json.ok) {
+        forgetPending();
         setError(json.reason ?? "The check could not be completed.");
         setPhase("error");
         return;
       }
+      forgetPending();
       setPhase("done");
-      router.push(`/result/${json.check_id}`);
+      // The "done" panel paints first, so the visitor is told what happened
+      // rather than being teleported mid-spinner.
+      setTimeout(() => router.push(`/result/${json.check_id}`), 700);
     } catch (e) {
       if (timer.current) clearInterval(timer.current);
+      // The request died, but the transaction may well be settling. Leave the
+      // pending marker so the next visit can still recover the result.
       setError(String((e as Error)?.message ?? e));
       setPhase("error");
     }
   }, [url, detected, router]);
 
-  const busy = phase === "submitting" || phase === "waiting";
+  const busy =
+    phase === "submitting" || phase === "waiting" || phase === "recovering";
   const Icon =
     detection?.supported && detection.platform
       ? PLATFORM_ICON[detection.platform as Platform]
@@ -262,9 +326,43 @@ export function CheckForm({ examples }: { examples: string[] }) {
           </div>
         )}
 
+        {/* ─────────────────────────── recovered from a previous visit */}
+        {phase === "recovering" && resumed && (
+          <div
+            className="mt-4 rounded-xl border border-indigo-200 bg-indigo-50 p-5"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="flex items-start gap-3">
+              <Loader2
+                size={18}
+                className="mt-0.5 shrink-0 animate-spin text-indigo-600"
+                aria-hidden="true"
+              />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-indigo-900">
+                  Picking up the check you already started
+                </p>
+                <p className="num mt-1 truncate text-xs text-indigo-700">
+                  {resumed}
+                </p>
+                <p className="mt-2 text-xs leading-relaxed text-indigo-800">
+                  You left while the validators were working. Nothing was lost —
+                  the transaction is on chain either way. As soon as the record
+                  appears you will be taken straight to it.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ─────────────────────────── loading state */}
-        {busy && (
-          <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-5">
+        {(phase === "submitting" || phase === "waiting") && (
+          <div
+            className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-5"
+            role="status"
+            aria-live="polite"
+          >
             <div className="flex items-center gap-3">
               <Loader2
                 size={18}
@@ -279,17 +377,59 @@ export function CheckForm({ examples }: { examples: string[] }) {
                 </p>
                 <p className="mt-0.5 text-xs text-slate-500">
                   Each one loads the page in its own browser and must agree on
-                  every number. This usually takes 30–90 seconds.
+                  every number before anything is written down.
                 </p>
               </div>
               <span className="num text-sm font-semibold text-slate-400">
                 {elapsed}s
               </span>
             </div>
+
+            <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2.5">
+              <PauseCircle
+                size={15}
+                className="mt-0.5 shrink-0 text-amber-600"
+                strokeWidth={2.2}
+                aria-hidden="true"
+              />
+              <p className="text-xs leading-relaxed text-amber-900">
+                <strong className="font-semibold">
+                  Stay on this page — analysis takes 30–90 seconds.
+                </strong>{" "}
+                If you do navigate away, nothing is lost: come back here and the
+                result will be waiting.
+              </p>
+            </div>
+
             <div className="mt-4 space-y-2.5">
               {[0, 1, 2].map((i) => (
                 <div key={i} className="skeleton h-2.5 rounded-full" style={{ width: `${90 - i * 18}%` }} />
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* ─────────────────────────── success, before the redirect */}
+        {phase === "done" && (
+          <div
+            className="mt-4 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-5"
+            role="status"
+            aria-live="polite"
+          >
+            <CheckCircle2
+              size={18}
+              className="mt-0.5 shrink-0 text-emerald-600"
+              strokeWidth={2.3}
+              aria-hidden="true"
+            />
+            <div>
+              <p className="text-sm font-semibold text-emerald-900">
+                Analysis complete! Redirecting to results…
+              </p>
+              <p className="mt-1 flex items-center gap-1.5 text-xs text-emerald-800">
+                <ArrowRight size={12} aria-hidden="true" />
+                The result has a permanent URL — you can bookmark it or share it.
+              </p>
             </div>
           </div>
         )}
@@ -308,6 +448,15 @@ export function CheckForm({ examples }: { examples: string[] }) {
                 That check did not complete
               </p>
               <p className="mt-0.5 text-sm text-rose-800">{error}</p>
+              <p className="mt-1.5 text-xs leading-relaxed text-rose-700">
+                If the transaction reached the network it may still be settling.
+                Nothing was charged either way — a refused check refunds its
+                deposit. Check{" "}
+                <Link href="/results" className="font-semibold underline">
+                  Browse results
+                </Link>{" "}
+                in a minute before resubmitting.
+              </p>
               <button
                 onClick={() => {
                   setPhase("idle");

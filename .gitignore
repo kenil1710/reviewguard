@@ -13,10 +13,12 @@ frontend/.env.local
 tools/node_modules/
 __pycache__/
 *.pyc
-CLAUDE.md
-AGENTS.md
-.claude/
+*.tsbuildinfo
+
+# Local agent/editor scratch that is not part of the project
+*.agent.md
+.agents/
+.assistant/
 HANDOVER.md
 .accounts.json
 .deployed.json
-*.tsbuildinfo

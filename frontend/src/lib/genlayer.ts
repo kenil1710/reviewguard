@@ -25,12 +25,12 @@ const addr = (value: string | undefined, fallback: string): `0x${string}` =>
 
 export const ORACLE_ADDRESS = addr(
   process.env.NEXT_PUBLIC_ORACLE_ADDRESS,
-  "0xc5fdA37427Ba24E0A35B446cBEf7a2C5E7EE61b3",
+  "0xA548BfAcA16765E9910F3aE7537fAA2B3064C12B",
 );
 
 export const CONSUMER_ADDRESS = addr(
   process.env.NEXT_PUBLIC_CONSUMER_ADDRESS,
-  "0x63Af3Ba8677FF2a09FfC39Fb09Eb93535f084B34",
+  "0x71131eBe691998BCBc8F572fAab07661299426ce",
 );
 
 export const EXPLORER = "https://explorer-studio-dev.genlayer.com";
