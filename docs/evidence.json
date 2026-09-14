@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-09-14T05:40:23.492Z",
+  "captured_at": "2026-09-14T06:04:38.695Z",
   "network": {
     "name": "GenLayer Studio Dev",
     "chain_id": 61997
@@ -167,26 +167,298 @@
     }
   },
   "stats": {
-    "authentic": 2,
+    "authentic": 6,
     "balance_wei": "0",
-    "conclusive_checks": 2,
+    "conclusive_checks": 6,
     "inconclusive": 0,
     "manipulated": 0,
     "manipulation_rate_pct": 0,
     "pages_by_platform": {
-      "AMAZON": 0,
-      "APP_STORE": 1,
-      "GOOGLE_PLAY": 1
+      "AMAZON": 1,
+      "APP_STORE": 2,
+      "GOOGLE_PLAY": 3
     },
-    "pages_tracked": 2,
+    "pages_tracked": 6,
     "paused": false,
     "refunds_owed_wei": "0",
     "suspicious": 0,
-    "total_checked": 2,
+    "total_checked": 6,
     "total_fees_wei": "0",
-    "total_requests": "2"
+    "total_requests": "6"
   },
   "checks": [
+    {
+      "available_weight": 100,
+      "check_id": 6,
+      "checked_at": 1789365411,
+      "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
+      "content_hash": "535:4c3d87e38320a146",
+      "credibility_basis": "verified-purchase",
+      "evidence": {
+        "avg_rating_x10": 47,
+        "dated_reviews": 8,
+        "distinct_days": 8,
+        "distinct_names_pct": 100,
+        "dup_open_pct": 25,
+        "has_photos": true,
+        "has_response": false,
+        "helpful_pct": 75,
+        "helpful_total": 208,
+        "lexical_pct": 70,
+        "max_same_day": 1,
+        "median_chars": 2650,
+        "page_chars": 38500,
+        "rating_histogram": {
+          "1": 1,
+          "2": 0,
+          "3": 4,
+          "4": 12,
+          "5": 83
+        },
+        "reviews_parsed": 8,
+        "reviews_section": true,
+        "short_pct": 0,
+        "span_days": 2040,
+        "total_ratings": 1040000,
+        "verified_pct": 100,
+        "weak_handle_pct": 35
+      },
+      "fee_paid_wei": "0",
+      "found": true,
+      "labels": {
+        "engagement_signals": "moderate",
+        "rating_distribution": "plausible spread",
+        "review_quality": "reasonably detailed",
+        "reviewer_credibility": "credible",
+        "timing_pattern": "naturally distributed"
+      },
+      "overall": 80,
+      "platform": "AMAZON",
+      "rubric_version": "1.0.0",
+      "scores": {
+        "engagement_signals": 5,
+        "rating_distribution": 5,
+        "review_quality": 5,
+        "reviewer_credibility": 6,
+        "timing_pattern": 7
+      },
+      "seq": 1,
+      "source_url": "https://www.amazon.com/dp/B07FZ8S74R",
+      "title": "Echo Dot (3rd Gen, 2018 release) - Smart speaker with Alexa - Charcoal",
+      "trust_level": "AUTHENTIC",
+      "url_key": "AMAZON:amazon.com:B07FZ8S74R",
+      "weights": {
+        "engagement_signals": 15,
+        "rating_distribution": 20,
+        "review_quality": 20,
+        "reviewer_credibility": 20,
+        "timing_pattern": 25
+      }
+    },
+    {
+      "available_weight": 65,
+      "check_id": 5,
+      "checked_at": 1789365043,
+      "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
+      "content_hash": "480:8a43ee106c3fae5c",
+      "credibility_basis": "identity-shape",
+      "evidence": {
+        "avg_rating_x10": 47,
+        "dated_reviews": 4,
+        "distinct_days": 4,
+        "distinct_names_pct": 100,
+        "dup_open_pct": 0,
+        "has_photos": false,
+        "has_response": false,
+        "helpful_pct": null,
+        "helpful_total": null,
+        "lexical_pct": 70,
+        "max_same_day": 1,
+        "median_chars": 1475,
+        "page_chars": 10500,
+        "rating_histogram": {
+          "1": null,
+          "2": null,
+          "3": null,
+          "4": null,
+          "5": null
+        },
+        "reviews_parsed": 4,
+        "reviews_section": true,
+        "short_pct": 0,
+        "span_days": 2195,
+        "total_ratings": 29000000,
+        "verified_pct": null,
+        "weak_handle_pct": 25
+      },
+      "fee_paid_wei": "0",
+      "found": true,
+      "labels": {
+        "engagement_signals": "not published by this platform",
+        "rating_distribution": "not published by this platform",
+        "review_quality": "detailed and varied",
+        "reviewer_credibility": "unremarkable",
+        "timing_pattern": "naturally distributed"
+      },
+      "overall": 85,
+      "platform": "APP_STORE",
+      "rubric_version": "1.0.0",
+      "scores": {
+        "engagement_signals": null,
+        "rating_distribution": null,
+        "review_quality": 7,
+        "reviewer_credibility": 4,
+        "timing_pattern": 7
+      },
+      "seq": 1,
+      "source_url": "https://apps.apple.com/us/app/id389801252",
+      "title": "Instagram",
+      "trust_level": "AUTHENTIC",
+      "url_key": "APP_STORE:us:389801252",
+      "weights": {
+        "engagement_signals": 15,
+        "rating_distribution": 20,
+        "review_quality": 20,
+        "reviewer_credibility": 20,
+        "timing_pattern": 25
+      }
+    },
+    {
+      "available_weight": 80,
+      "check_id": 4,
+      "checked_at": 1789364936,
+      "checker": "0x83efD4C7a7228d12EFe615D40C0335Fe64137E64",
+      "content_hash": "491:b10960fe09468bf7",
+      "credibility_basis": "identity-shape",
+      "evidence": {
+        "avg_rating_x10": 43,
+        "dated_reviews": 3,
+        "distinct_days": 3,
+        "distinct_names_pct": 100,
+        "dup_open_pct": 0,
+        "has_photos": false,
+        "has_response": false,
+        "helpful_pct": 100,
+        "helpful_total": 9040,
+        "lexical_pct": 75,
+        "max_same_day": 1,
+        "median_chars": 425,
+        "page_chars": 5000,
+        "rating_histogram": {
+          "1": null,
+          "2": null,
+          "3": null,
+          "4": null,
+          "5": null
+        },
+        "reviews_parsed": 3,
+        "reviews_section": true,
+        "short_pct": 0,
+        "span_days": 395,
+        "total_ratings": 14300000,
+        "verified_pct": null,
+        "weak_handle_pct": 35
+      },
+      "fee_paid_wei": "0",
+      "found": true,
+      "labels": {
+        "engagement_signals": "high natural engagement",
+        "rating_distribution": "not published by this platform",
+        "review_quality": "detailed",
+        "reviewer_credibility": "doubtful",
+        "timing_pattern": "naturally distributed"
+      },
+      "overall": 80,
+      "platform": "GOOGLE_PLAY",
+      "rubric_version": "1.0.0",
+      "scores": {
+        "engagement_signals": 7,
+        "rating_distribution": null,
+        "review_quality": 6,
+        "reviewer_credibility": 3,
+        "timing_pattern": 7
+      },
+      "seq": 1,
+      "source_url": "https://play.google.com/store/apps/details?id=com.netflix.mediaclient",
+      "title": "Netflix",
+      "trust_level": "AUTHENTIC",
+      "url_key": "GOOGLE_PLAY:com.netflix.mediaclient",
+      "weights": {
+        "engagement_signals": 15,
+        "rating_distribution": 20,
+        "review_quality": 20,
+        "reviewer_credibility": 20,
+        "timing_pattern": 25
+      }
+    },
+    {
+      "available_weight": 80,
+      "check_id": 3,
+      "checked_at": 1789364689,
+      "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
+      "content_hash": "505:a415e478e48f7b9d",
+      "credibility_basis": "identity-shape",
+      "evidence": {
+        "avg_rating_x10": 43,
+        "dated_reviews": 3,
+        "distinct_days": 3,
+        "distinct_names_pct": 100,
+        "dup_open_pct": 0,
+        "has_photos": false,
+        "has_response": false,
+        "helpful_pct": 100,
+        "helpful_total": 3220,
+        "lexical_pct": 75,
+        "max_same_day": 1,
+        "median_chars": 500,
+        "page_chars": 8500,
+        "rating_histogram": {
+          "1": null,
+          "2": null,
+          "3": null,
+          "4": null,
+          "5": null
+        },
+        "reviews_parsed": 3,
+        "reviews_section": true,
+        "short_pct": 0,
+        "span_days": 280,
+        "total_ratings": 34100000,
+        "verified_pct": null,
+        "weak_handle_pct": 35
+      },
+      "fee_paid_wei": "0",
+      "found": true,
+      "labels": {
+        "engagement_signals": "high natural engagement",
+        "rating_distribution": "not published by this platform",
+        "review_quality": "detailed",
+        "reviewer_credibility": "doubtful",
+        "timing_pattern": "well spread"
+      },
+      "overall": 75,
+      "platform": "GOOGLE_PLAY",
+      "rubric_version": "1.0.0",
+      "scores": {
+        "engagement_signals": 7,
+        "rating_distribution": null,
+        "review_quality": 6,
+        "reviewer_credibility": 3,
+        "timing_pattern": 6
+      },
+      "seq": 1,
+      "source_url": "https://play.google.com/store/apps/details?id=com.spotify.music",
+      "title": "Spotify: Music and Podcasts",
+      "trust_level": "AUTHENTIC",
+      "url_key": "GOOGLE_PLAY:com.spotify.music",
+      "weights": {
+        "engagement_signals": 15,
+        "rating_distribution": 20,
+        "review_quality": 20,
+        "reviewer_credibility": 20,
+        "timing_pattern": 25
+      }
+    },
     {
       "available_weight": 65,
       "check_id": 2,
@@ -326,6 +598,26 @@
   ],
   "verifications": [
     {
+      "check_id": 6,
+      "verified": true,
+      "mismatches": []
+    },
+    {
+      "check_id": 5,
+      "verified": true,
+      "mismatches": []
+    },
+    {
+      "check_id": 4,
+      "verified": true,
+      "mismatches": []
+    },
+    {
+      "check_id": 3,
+      "verified": true,
+      "mismatches": []
+    },
+    {
       "check_id": 2,
       "verified": true,
       "mismatches": []
@@ -338,6 +630,30 @@
   ],
   "all_verified": true,
   "guards": [
+    {
+      "url": "https://www.amazon.com/dp/B07FZ8S74R",
+      "is_authentic": true,
+      "trust_level": "AUTHENTIC",
+      "consistent": true
+    },
+    {
+      "url": "https://apps.apple.com/us/app/id389801252",
+      "is_authentic": true,
+      "trust_level": "AUTHENTIC",
+      "consistent": true
+    },
+    {
+      "url": "https://play.google.com/store/apps/details?id=com.netflix.mediaclient",
+      "is_authentic": true,
+      "trust_level": "AUTHENTIC",
+      "consistent": true
+    },
+    {
+      "url": "https://play.google.com/store/apps/details?id=com.spotify.music",
+      "is_authentic": true,
+      "trust_level": "AUTHENTIC",
+      "consistent": true
+    },
     {
       "url": "https://apps.apple.com/us/app/id310633997",
       "is_authentic": true,

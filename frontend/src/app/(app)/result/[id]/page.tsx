@@ -12,7 +12,6 @@ import { EvidencePanel } from "@/components/evidence-panel";
 import { VerifyPanel } from "@/components/verify-panel";
 import { safeCheck } from "@/lib/oracle";
 import { timeAgo, shortAddress } from "@/lib/format";
-import { txUrl } from "@/lib/genlayer";
 
 export const revalidate = 30;
 
@@ -227,7 +226,7 @@ export default async function ResultPage({
 
       {/* ────────────────────────────────── evidence */}
       <div className="mt-6">
-        <EvidencePanel evidence={rec.evidence} platform={rec.platform} />
+        <EvidencePanel evidence={rec.evidence} />
       </div>
     </div>
   );

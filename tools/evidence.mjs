@@ -19,14 +19,27 @@ const client = createClient({ chain: studioDevnet });
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * Studio meters THIRTY READS A MINUTE per caller, and this script makes three
+ * per check. Without pacing it burns the budget a third of the way through and
+ * the remaining reads come back as errors — which then look like failures in
+ * the output rather than like what they are. Two seconds apart is comfortably
+ * inside the limit and the whole run still takes under a minute.
+ */
+let lastRead = 0;
+const MIN_GAP_MS = 2100;
+
 async function read(address, functionName, args = []) {
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 6; i++) {
+    const since = Date.now() - lastRead;
+    if (since < MIN_GAP_MS) await sleep(MIN_GAP_MS - since);
+    lastRead = Date.now();
     try {
       return await client.readContract({ address, functionName, args });
     } catch (e) {
       const msg = String(e?.message ?? e);
-      if (i === 5) return { _error: msg.slice(0, 200) };
-      await sleep(/rate limit/i.test(msg) ? 4000 : 900 * i);
+      if (i === 6) return { _error: msg.slice(0, 200) };
+      await sleep(/rate limit/i.test(msg) ? 8000 : 1200 * i);
     }
   }
 }

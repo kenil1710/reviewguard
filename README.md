@@ -111,6 +111,14 @@ and `reviews_section` joined the consensus axis and the contract now answers:
 > *the page rendered 14000 characters and stopped before its review list, so
 > there was nothing to read*
 
+**Ninety minutes later Amazon recovered**, and the same URL scored
+`AUTHENTIC 80` on 38,500 characters, eight dated reviews, 100% verified
+purchases and a full 100/100 measurable weight. For an hour and a half
+ReviewGuard had said "inconclusive" about a product it now scores 80. A rubric
+that had scored the partial page would have published a verdict it then had to
+contradict — and `page_chars`, 14,000 against 38,500 on the same URL, is what
+makes the two records tell that story instead of just disagreeing.
+
 ---
 
 ## Reading it from your own contract

@@ -2,7 +2,7 @@ import {
   CalendarDays, BarChart3, FileText, UserCheck, ThumbsUp, Images,
   MessageSquareReply, Hash, Info, FileWarning, ScrollText,
 } from "lucide-react";
-import type { Evidence, Platform } from "@/lib/types";
+import type { Evidence } from "@/lib/types";
 import { compact, exact, stars, spanLabel } from "@/lib/format";
 import { NotPublished } from "./badges";
 
@@ -14,13 +14,7 @@ import { NotPublished } from "./badges";
  * so in words; it is never rendered as a zero, because "0% verified" and "this
  * platform does not say" are different claims about a seller.
  */
-export function EvidencePanel({
-  evidence: e,
-  platform,
-}: {
-  evidence: Evidence;
-  platform: Platform;
-}) {
+export function EvidencePanel({ evidence: e }: { evidence: Evidence }) {
   const hist = e.rating_histogram;
   const hasHist = hist?.["5"] !== null && hist?.["5"] !== undefined;
 

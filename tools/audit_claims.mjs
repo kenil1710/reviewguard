@@ -36,13 +36,22 @@ const bad = (m, d) => {
 const head = (m) => console.log(`\n${BOLD}${m}${OFF}`);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// Studio meters thirty reads a minute per caller. This audit makes several per
+// check, so it paces itself rather than spending the budget and then reporting
+// the rate limiter's refusals as audit failures.
+let lastRead = 0;
+const MIN_GAP_MS = 2100;
+
 async function read(address, fn, args = []) {
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 6; i++) {
+    const since = Date.now() - lastRead;
+    if (since < MIN_GAP_MS) await sleep(MIN_GAP_MS - since);
+    lastRead = Date.now();
     try {
       return await client.readContract({ address, functionName: fn, args });
     } catch (e) {
-      if (i === 5) throw e;
-      await sleep(/rate limit/i.test(String(e?.message)) ? 4000 : 800 * i);
+      if (i === 6) throw e;
+      await sleep(/rate limit/i.test(String(e?.message)) ? 8000 : 1000 * i);
     }
   }
 }

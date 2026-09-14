@@ -31,11 +31,17 @@ export function WalletBadge() {
 
   useEffect(() => {
     const eth = window.ethereum;
-    setHasWallet(Boolean(eth));
-    if (!eth) return;
 
     let alive = true;
+    // `hasWallet` is set inside the async block with everything else rather
+    // than synchronously at the top of the effect: a synchronous setState here
+    // is a cascading render, and the first paint should be the
+    // no-wallet-needed state anyway — that is the honest default, since a
+    // check is free and the site relays it.
     (async () => {
+      if (!alive) return;
+      setHasWallet(Boolean(eth));
+      if (!eth) return;
       try {
         const accts = (await eth.request({ method: "eth_accounts" })) as string[];
         const cid = (await eth.request({ method: "eth_chainId" })) as string;
@@ -46,6 +52,8 @@ export function WalletBadge() {
         /* a wallet that refuses to answer is the same as no wallet here */
       }
     })();
+
+    if (!eth) return () => { alive = false; };
 
     const onAccounts = (...a: unknown[]) =>
       setAddress(((a[0] as string[]) ?? [])[0] ?? null);

@@ -38,12 +38,16 @@ export function TrustGauge({
   const track = c * sweep;
   const filled = track * Math.max(0, Math.min(100, score)) / 100;
 
-  const [shown, setShown] = useState(reduce ? score : 0);
+  // The count-up is a PROGRESS value, not the truth: `score` is. Keeping them
+  // separate means a reader who has asked for reduced motion, or a check with
+  // no score at all, never depends on an effect having run — the number is
+  // right on the first paint rather than after one.
+  const [progress, setProgress] = useState(0);
+  const animate = !reduce && !inconclusive;
+  const shown = animate ? progress : score;
+
   useEffect(() => {
-    if (reduce || inconclusive) {
-      setShown(score);
-      return;
-    }
+    if (!animate) return;
     let raf = 0;
     const start = performance.now();
     const dur = 900;
@@ -51,12 +55,12 @@ export function TrustGauge({
       const p = Math.min(1, (t - start) / dur);
       // ease-out cubic: fast to roughly the right answer, then settles
       const eased = 1 - Math.pow(1 - p, 3);
-      setShown(Math.round(score * eased));
+      setProgress(Math.round(score * eased));
       if (p < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [score, reduce, inconclusive]);
+  }, [score, animate]);
 
   return (
     <div

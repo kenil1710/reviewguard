@@ -27,7 +27,13 @@ type Phase = "idle" | "detecting" | "submitting" | "waiting" | "done" | "error";
 export function CheckForm({ examples }: { examples: string[] }) {
   const router = useRouter();
   const [url, setUrl] = useState("");
-  const [detection, setDetection] = useState<Detection | null>(null);
+  // The detection is stored WITH the URL it describes, and only used when that
+  // URL is still what is in the box. Clearing it in an effect would be both a
+  // cascading render and a lie for one frame — the old platform badge would
+  // still be on screen for a URL it was never about.
+  const [detected, setDetected] = useState<{ url: string; result: Detection } | null>(
+    null,
+  );
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -38,20 +44,22 @@ export function CheckForm({ examples }: { examples: string[] }) {
    *  than no preview at all. */
   useEffect(() => {
     const trimmed = url.trim();
-    if (!trimmed) {
-      setDetection(null);
-      return;
-    }
+    if (!trimmed) return;
     let alive = true;
-    setPhase((p) => (p === "waiting" || p === "submitting" ? p : "detecting"));
     const t = setTimeout(async () => {
+      // Set inside the debounce rather than before it. A synchronous setState
+      // in an effect body is a cascading render, and "detecting" is only true
+      // once the request is actually going out.
+      if (alive) {
+        setPhase((p) => (p === "waiting" || p === "submitting" ? p : "detecting"));
+      }
       try {
         const res = await fetch(
           `/api/detect?url=${encodeURIComponent(trimmed)}`,
         );
         const json = (await res.json()) as Detection;
         if (!alive) return;
-        setDetection(json);
+        setDetected({ url: trimmed, result: json });
         setPhase((p) => (p === "detecting" ? "idle" : p));
       } catch {
         if (alive) setPhase((p) => (p === "detecting" ? "idle" : p));
@@ -70,9 +78,13 @@ export function CheckForm({ examples }: { examples: string[] }) {
     [],
   );
 
+  const detection =
+    detected && detected.url === url.trim() ? detected.result : null;
+
   const submit = useCallback(async () => {
     const trimmed = url.trim();
-    if (!trimmed || !detection?.supported) return;
+    if (!trimmed || !detected || detected.url !== trimmed) return;
+    if (!detected.result.supported) return;
     setError(null);
     setPhase("submitting");
     setElapsed(0);
@@ -104,7 +116,7 @@ export function CheckForm({ examples }: { examples: string[] }) {
       setError(String((e as Error)?.message ?? e));
       setPhase("error");
     }
-  }, [url, detection, router]);
+  }, [url, detected, router]);
 
   const busy = phase === "submitting" || phase === "waiting";
   const Icon =

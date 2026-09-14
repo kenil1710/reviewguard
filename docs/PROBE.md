@@ -392,3 +392,42 @@ contract:
    failed when it had in fact worked. It now polls for up to two minutes and
    drops its memo each time, so it is watching the chain rather than a cached
    answer from thirty seconds ago.
+
+---
+
+## 8. Amazon recovered, and the evidence field proved its worth
+
+Roughly ninety minutes after §6, the seeding run reached the same Echo Dot URL
+again. This is what came back:
+
+```
+title:            Echo Dot (3rd Gen, 2018 release) - Smart speaker with Alexa
+page_chars:       38500          (was 14000)
+reviews_section:  true           (was false)
+reviews_parsed:   8              (was 0)
+dated_reviews:    8
+verified_pct:     100
+has_photos:       true
+available_weight: 100/100
+overall:          80
+trust_level:      AUTHENTIC
+```
+
+The degraded window was Amazon's and it was temporary. Three things are now
+settled by measurement rather than by argument:
+
+1. **The Amazon parser works on live data**, not only on the captured fixture.
+   Eight reviews, every one with a date and a verified-purchase flag, customer
+   photos detected, the full rubric measurable.
+2. **The conservative path was right.** For ninety minutes ReviewGuard said
+   INCONCLUSIVE about a product it now scores 80/100 AUTHENTIC. A rubric that
+   had scored the partial page would have published a verdict it then had to
+   contradict.
+3. **`page_chars` is the field that makes the two distinguishable.** 14,000
+   against 38,500, on the same URL, four hours apart. Without it the record
+   would say "0 reviews parsed" in one case and "8 reviews parsed" in the other
+   with nothing to explain the gap.
+
+All three platforms have now produced live, verified AUTHENTIC checks on
+studio-dev with the full evidence trail: Amazon at 100/100 measurable weight,
+Google Play at 80, the App Store at 65.
