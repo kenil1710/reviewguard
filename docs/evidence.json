@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-09-14T06:19:56.538Z",
+  "captured_at": "2026-09-14T06:25:51.359Z",
   "network": {
     "name": "GenLayer Studio Dev",
     "chain_id": 61997
@@ -170,23 +170,91 @@
     "authentic": 9,
     "balance_wei": "0",
     "conclusive_checks": 9,
-    "inconclusive": 0,
+    "inconclusive": 1,
     "manipulated": 0,
     "manipulation_rate_pct": 0,
     "pages_by_platform": {
-      "AMAZON": 1,
+      "AMAZON": 2,
       "APP_STORE": 3,
       "GOOGLE_PLAY": 5
     },
-    "pages_tracked": 9,
+    "pages_tracked": 10,
     "paused": false,
     "refunds_owed_wei": "0",
     "suspicious": 0,
-    "total_checked": 9,
+    "total_checked": 10,
     "total_fees_wei": "0",
-    "total_requests": "9"
+    "total_requests": "11"
   },
   "checks": [
+    {
+      "available_weight": 20,
+      "check_id": 10,
+      "checked_at": 1789366976,
+      "checker": "0xC70FF4C06aEcb796ED712029EE548834764c9Fe8",
+      "content_hash": "570:0c8dbd0fc30b1af0",
+      "credibility_basis": "verified-purchase",
+      "evidence": {
+        "avg_rating_x10": 47,
+        "dated_reviews": 0,
+        "distinct_days": 0,
+        "distinct_names_pct": 0,
+        "dup_open_pct": 0,
+        "has_photos": false,
+        "has_response": false,
+        "helpful_pct": null,
+        "helpful_total": 0,
+        "lexical_pct": 0,
+        "max_same_day": 0,
+        "median_chars": 0,
+        "page_chars": 14000,
+        "rating_histogram": {
+          "1": 3,
+          "2": 0,
+          "3": 3,
+          "4": 7,
+          "5": 87
+        },
+        "reviews_parsed": 0,
+        "reviews_section": false,
+        "short_pct": 0,
+        "span_days": 0,
+        "total_ratings": 57900,
+        "verified_pct": null,
+        "weak_handle_pct": 0
+      },
+      "fee_paid_wei": "0",
+      "found": true,
+      "labels": {
+        "engagement_signals": "not published by this platform",
+        "rating_distribution": "slightly top-heavy",
+        "review_quality": "not published by this platform",
+        "reviewer_credibility": "not published by this platform",
+        "timing_pattern": "not published by this platform"
+      },
+      "overall": 0,
+      "platform": "AMAZON",
+      "rubric_version": "1.0.0",
+      "scores": {
+        "engagement_signals": null,
+        "rating_distribution": 4,
+        "review_quality": null,
+        "reviewer_credibility": null,
+        "timing_pattern": null
+      },
+      "seq": 1,
+      "source_url": "https://www.amazon.com/dp/B0BDHWDR12",
+      "title": "Apple AirPods Pro (2nd Gen) Wireless Earbuds, Up to 2X More Active Noise Cancelling, Adaptive Transparency, Personalized",
+      "trust_level": "INCONCLUSIVE",
+      "url_key": "AMAZON:amazon.com:B0BDHWDR12",
+      "weights": {
+        "engagement_signals": 15,
+        "rating_distribution": 20,
+        "review_quality": 20,
+        "reviewer_credibility": 20,
+        "timing_pattern": 25
+      }
+    },
     {
       "available_weight": 80,
       "check_id": 9,
@@ -802,6 +870,11 @@
   ],
   "verifications": [
     {
+      "check_id": 10,
+      "verified": true,
+      "mismatches": []
+    },
+    {
       "check_id": 9,
       "verified": true,
       "mismatches": []
@@ -849,6 +922,12 @@
   ],
   "all_verified": true,
   "guards": [
+    {
+      "url": "https://www.amazon.com/dp/B0BDHWDR12",
+      "is_authentic": false,
+      "trust_level": "INCONCLUSIVE",
+      "consistent": true
+    },
     {
       "url": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
       "is_authentic": true,

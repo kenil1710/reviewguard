@@ -431,3 +431,43 @@ settled by measurement rather than by argument:
 All three platforms have now produced live, verified AUTHENTIC checks on
 studio-dev with the full evidence trail: Amazon at 100/100 measurable weight,
 Google Play at 80, the App Store at 65.
+
+---
+
+## 9. A live INCONCLUSIVE, with the evidence that explains it
+
+The tenth seeded check, `amazon.com/dp/B0BDHWDR12` (AirPods Pro 2nd Gen). This
+is what the contract stored:
+
+```
+page_chars:        14000        the truncated shape from §6, again
+reviews_section:   false        the review list was not on the page
+reviews_parsed:    0
+avg_rating_x10:    47           the summary block DID render
+total_ratings:     57900
+rating_histogram:  87 / 7 / 3 / 0 / 3
+available_weight:  20 / 100     only rating_distribution was measurable
+overall:           0
+trust_level:       INCONCLUSIVE
+```
+
+An 87% five-star histogram on 57,900 ratings, and ReviewGuard declined to score
+it. That is the whole design in one record:
+
+- One dimension was measurable out of five — **20 of 100**, well under the
+  `MIN_AVAILABLE_WEIGHT` floor of 60.
+- A rubric willing to score what it had would have published a verdict from a
+  single dimension on a page whose review list it never saw.
+- `page_chars: 14000` against the 38,500 the Echo Dot returned an hour earlier
+  is what lets a reader tell *this product has no reviews* from *we could not
+  see this product's reviews*.
+- `is_authentic` returns **false** for it, `require_authentic` reverts, and
+  `MarketplaceConsumer` refuses it by name — so nothing downstream mistakes the
+  absence of a score for a passing one.
+- `get_stats().manipulation_rate_pct` excludes it from the denominator: nine
+  conclusive checks, zero manipulated, **0%**. Had it been counted as "not
+  manipulated" the headline would have improved because the oracle failed.
+
+Ten checks across three platforms: **nine AUTHENTIC scoring 75-85, one
+INCONCLUSIVE**, every one of them recomputing clean from its own stored
+evidence.
